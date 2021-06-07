@@ -141,16 +141,32 @@ note-rename() {
 	notefile="$USE_POINTER/$@"
 
 	read -p "Please enter new name for note: "  newname
+
+	case $notefile in
+		*gpg) skip;;
+		*) notefile="${notefile}.gpg"
+	esac 
+
 	newnotefile="${USE_POINTER}/${newname}"
+	case $newnotefile in
+		*gpg) skip;;
+		*) newnotefile="${newnotefile}.gpg"
+	esac 
 
 	echo old notefile $notefile
 	echo new notefile $newnotefile
 
+
+	case $MVCP in 
+		"cp")	processing="copying ";;
+		"mv")	processing="moving ";;
+	esac
+
 	if [ -f "$notefile" ] ; then
-		echo $notefile exists .... renaming
+		echo $notefile exists .... $processing
 		$MVCP  "$notefile" "$newnotefile"
 	elif [ -f "${notefile}.gpg" ] ; then 
-		echo $notefile exists .... renaming
+		echo $notefile exists .... $processing
 		$MVCP   "$notefile" "$newnotefile"
 	else
 		echo Note $notefile does not exist, aborting...
@@ -218,8 +234,13 @@ notebook-rename() {
 	echo old notebook $notebook
 	echo new notebook $newnotebook
 
+	case $MVCP in 
+		"cp")	processing="copying ";;
+		"mv")	processing="moving ";;
+	esac
+
 	if [ -d "$notebook" ] ; then
-		echo $notebook exists .... renaming
+		echo $notebook exists .... $processing
 		$MVCP  "$notebook" "$newnotebook"
 	else
 		echo Note $notebook does not exist, aborting...
@@ -259,6 +280,7 @@ NOTES MANAGEMENT:
 	notes insert|add	add a note
 	notes import		import a text file as a note
 	notes rename|mv		rename a note
+	notes copy|cp		copy a note
 	notes delete|rm		delete a note
 	notes edit|ed		edit a note
 
@@ -270,6 +292,7 @@ NOTEBOOK MANAGEMENT:
 	notebook use		use a notebook
 	notebook add|insert	add a notebook
 	notebook rename|mv	rename a notebook
+	notebook copy|cp	copy a notebook
 	notebook delete|rm	delete a notebook
 	
 
