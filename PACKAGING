@@ -1,0 +1,44 @@
+
+			PACKAGING NOTES SCRIPT
+
+We welcome contributions from others helping to package NOTES for 
+different BSD/Linux distributions.
+
+CURRENTLY PLANNED BY AUTHOR
+
+I will be packaging for the following operating systems, based upon the 
+OS I have easily available to me:
+
+- FreeBSD
+- Debian Linux
+- source tarball for use with 'make install'
+
+OTHER PACKAGING DESIRED
+
+We would love to see the scripts packaged for other operating systems 
+including the following:
+
+- Arch Linux 
+- Manjaro Linux
+- Ubuntu
+- Fedora
+
+We will incorporate packaging for any BSD/Linux that contributors would 
+like to commit to building. 
+
+PACKAGING
+
+For ease of maintenance, packagers should create a sub directory under 
+[repo]/pkgs named after the distribution (see pkgs/debian, pkgs/freebsd 
+for example). 
+
+Inside that directory there should be a makefile to create the package 
+and all the appropriate files to create the distribution specific package 
+file (.pkg, .deb, etc). 
+
+It should be created in such a way that a simple 'make' in the folder 
+to build the package according to the distribution requirements.
+
+Please ensure that the package has the appropriate dependencies for end 
+users. See the file DEPENDENCIES for details.
+
