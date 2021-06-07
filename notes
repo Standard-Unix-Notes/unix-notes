@@ -134,14 +134,19 @@ note-view() {
 
 note-delete() {
 	
-	echo argv = $@
-	# parse command line
+	notefile="$USE_POINTER/$@"
+	
+	if [ -f "$notefile" ]; then 
 
-	# get note filename
+		rm -i "$notefile" 
 
-	# get confirmation
+	elif [ -f "${notefile}.gpg" ]; then 
 
-	# delete note
+		rm -i "${notefile}.gpg" 
+
+	else 
+		echo Note file does not exist
+	fi
 
 }
 
@@ -163,14 +168,16 @@ note-rename() {
 
 notebook-add() {
 
-	echo notebook-add
-	echo argv = $@
-	# parse command line
+	new_notebook="${NOTESDIR}/$@"
 
-	# get notebook name
+	echo $new_notebook
 
-	# create notebook directory
-
+	if [ ! -d "$new_notebook" ] ; then
+		mkdir "$new_notebook"
+		echo Created new notebook called $new_notebook
+	else
+		echo Notebook exists ... cannot create
+	fi
 }
 
 notebook-delete() {
@@ -299,7 +306,13 @@ cmd_generate () {
 }
 
 cmd_delete () {
-	echo cmd_delete
+	myoptions="$@"
+
+	case $PROGRAM in 
+	
+		"notes") echo my options = ${myoptions} ; note-delete $myoptions;;
+		"notebook") notebook-delete $myoptions;;
+	esac
 }
 
 cmd_edit () {
