@@ -24,7 +24,6 @@ GPG="gpg"
 cmd_init (){		# setup directories and GPG key  to be used
 	# key id for encryption 
 	local KEYID
-
 	list_private_keys
 
 	# set umask to this user only
@@ -71,8 +70,14 @@ list_private_keys () {
 # note functions
 #
 
+encrypt_notefile () {
+
+	echo argv = $@
+}
+
 note-add() {
 
+	echo argv = $@
 	# parse command line
 
 	# get note name
@@ -89,6 +94,7 @@ note-add() {
 
 note-view() {
 
+	echo argv = $@
 	# parse command line
 
 	# get note name 
@@ -99,6 +105,7 @@ note-view() {
 
 note-delete() {
 	
+	echo argv = $@
 	# parse command line
 
 	# get note filename
@@ -111,6 +118,7 @@ note-delete() {
 
 note-rename() {
 
+	echo argv = $@
 	# parse command line 
 
 	# get note filename
@@ -126,6 +134,7 @@ note-rename() {
 
 notebook-add() {
 
+	echo argv = $@
 	# parse command line
 
 	# get notebook name
@@ -136,6 +145,7 @@ notebook-add() {
 
 notebook-delete() {
 	
+	echo argv = $@
 	# parse command line
 
 	# get notebook name
@@ -149,6 +159,7 @@ notebook-delete() {
 
 notebook-rename() {
 
+	echo argv = $@
 	# parse command line
 
 	# get notebook name
