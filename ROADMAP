@@ -16,3 +16,4 @@ FUTURE FEATURES
 	- spell checking before encryption using aspell
 	- multiuser encryption
 	- different gpg keys per notebook
+	- git integration
