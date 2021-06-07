@@ -153,6 +153,10 @@ note-edit() {
 	fi
 }
 
+note-list() {
+	ls "${USE_POINTER}" | column | more 
+}
+
 note-delete() {
 	notefile="$USE_POINTER/$@"
 	
@@ -166,17 +170,9 @@ note-delete() {
 }
 
 note-rename() {
-
-	echo argv = $@
-	
 	MVCP="$1"
 	shift
-
-	echo command = "$MVCP"
-	echo argv now $@
-
 	notefile="$USE_POINTER/$@"
-
 	read -p "Please enter new name for note: "  newname
 
 	case $notefile in
@@ -189,10 +185,6 @@ note-rename() {
 		*gpg) skip;;
 		*) newnotefile="${newnotefile}.gpg"
 	esac 
-
-	echo old notefile $notefile
-	echo new notefile $newnotefile
-
 
 	case $MVCP in 
 		"cp")	processing="copying ";;
@@ -215,11 +207,7 @@ note-rename() {
 #
 
 notebook-add() {
-
 	new_notebook="${NOTESDIR}/$@"
-
-	echo $new_notebook
-
 	if [ ! -d "$new_notebook" ] ; then
 		mkdir "$new_notebook"
 		chmod 700 "$new_notebook"
@@ -230,15 +218,12 @@ notebook-add() {
 }
 
 notebook-delete() {
-	
 	notebook="${NOTESDIR}/$@"
-
 	if [ ! -d "${notebook}" ] ; then
 		echo Error: Notebook \'$notebook\' does not exist
 		exit 1
 	else
 		echo Deleting files from $notebook
-
 		rm -i ${notebook}/*.gpg
 		
 		if [ $? = 0 ] ; then 
@@ -250,9 +235,6 @@ notebook-delete() {
 }
 
 notebook-rename() {
-
-	echo argv = $@
-	
 	MVCP="$1"
 	shift
 
@@ -260,16 +242,9 @@ notebook-rename() {
 		MVCP="cp -r "
 	fi
 
-	echo command = "$MVCP"
-	echo argv now $@
-
 	notebook="$NOTESDIR/$@"
-
 	read -p "Please enter new name for note: "  newname
 	newnotebook="${NOTESDIR}/${newname}"
-
-	echo old notebook $notebook
-	echo new notebook $newnotebook
 
 	case $MVCP in 
 		"cp")	processing="copying ";;
@@ -284,18 +259,19 @@ notebook-rename() {
 	fi
 }
 
+notebook-list () {
+	ls "${NOTESDIR}" | sed 's/DEFAULT//; s/USE//; s/config//' | column | more 
+}
+
 #
 # OTHER COMMANDS
 #
 
 cmd_extension_or_show () {
-	echo inside cmd_extension_or_show
-
 	cmd_usage
 }
 
 cmd_usage () {
-echo cmd_usage
 cat << ENDHELP
 
 		Standard (?) Unix Notes system
@@ -332,9 +308,6 @@ NOTEBOOK MANAGEMENT:
 	notebook copy|cp    notebook	copy a notebook (will prompt for new name)
 	notebook delete|rm  notebook	delete a notebook
 	
-
-
-
 ENDHELP
 }
 
@@ -343,23 +316,23 @@ cmd_version () {
 }
 
 cmd_view () {
-
 	myoptions="$@"
-	
 	if [ "$1" = "" ]; then
 		echo No note specified on command line
 		exit 1
 	fi
-
 	case $PROGRAM in 
-		
 		"notes") note-view $myoptions;;
 		"notebook") cmd_usage;;
 	esac
 }
 
 cmd_show () {
-	echo cmd_show
+	myoptions="$@"
+	case $PROGRAM in 
+		"notes") note-list $myoptions;;
+		"notebook") notebook-list $myoptions;;
+	esac
 }
 
 cmd_find () {
@@ -367,11 +340,8 @@ cmd_find () {
 }
 
 cmd_insert () {
-
 	myoptions="$@"
-
 	case $PROGRAM in 
-	
 		"notes") echo my options = ${myoptions} ; note-add $myoptions;;
 		"notebook") notebook-add $myoptions;;
 	esac
@@ -379,7 +349,6 @@ cmd_insert () {
 
 cmd_import () {
 	myoptions="$@"
-
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note-import $myoptions;;
 		"notebook") cmd_usage;;
@@ -392,7 +361,6 @@ cmd_generate () {
 
 cmd_delete () {
 	myoptions="$@"
-
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note-delete $myoptions;;
 		"notebook") notebook-delete $myoptions;;
@@ -400,9 +368,7 @@ cmd_delete () {
 }
 
 cmd_edit () {
-	echo cmd_edit
 	myoptions="$@"
-
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note-edit $myoptions;;
 		"notebook") notebook-edit $myoptions;;
@@ -410,10 +376,7 @@ cmd_edit () {
 }
 
 cmd_copy_move () {
-	echo cmd_copy_move
 	myoptions="$@"
-	echo myoptions = $myoptions
-
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note-rename $myoptions;;
 		"notebook") notebook-rename $myoptions;;
@@ -438,8 +401,6 @@ cmd_newkey () {
 #			#
 #########################
 
-
-
 PROGRAM="${0##*/}"
 COMMAND="$1"
 
@@ -463,9 +424,5 @@ case "$1" in
         *)                              cmd_extension_or_show "$@" ;;
 esac
 exit 0
-
-
-
-
 
 
