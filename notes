@@ -60,6 +60,7 @@ cmd_init (){		# setup directories and GPG key  to be used
 create_config () {
 
 	touch $NOTESDIR/config
+	chmod 600 $NOTESDIR/config
 
 	echo You have the following private keys on your keyring
 
@@ -174,6 +175,7 @@ notebook-add() {
 
 	if [ ! -d "$new_notebook" ] ; then
 		mkdir "$new_notebook"
+		chmod 700 "$new_notebook"
 		echo Created new notebook called $new_notebook
 	else
 		echo Notebook exists ... cannot create
@@ -183,15 +185,23 @@ notebook-add() {
 notebook-delete() {
 	
 	echo argv = $@
-	# parse command line
+	notebook="${NOTESDIR}/$@"
+	echo $notebook
 
-	# get notebook name
+	if [ ! -d "${notebook}" ] ; then
+		echo Error: Notebook \'$notebook\' does not exist
+		exit 1
+	else
+		echo Deleting files from $notebook
 
-	# get confirmation
-
-	# delete notebook contents
-
-	# delete notebook
+		rm -i ${notebook}/*.gpg
+		
+		if [ $? = 0 ] ; then 
+			rmdir "$notebook"
+		else
+			echo Deleting files aborted ... aborting deleting notebook $notebook
+		fi
+	fi
 }
 
 notebook-rename() {
