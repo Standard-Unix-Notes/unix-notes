@@ -1,0 +1,134 @@
+#!/bin/sh
+#
+#	STANDARD(?) UNIX NOTES 
+#
+# This is Unix Notes. An GPG encrypted notes system designed for privacy
+#
+# The idea came from 'pass' the standard unix password manager
+
+# VARIABLES
+NOTES_UMASK:-'600'
+NOTESDIR:-$(HOME)/.notes
+GPGKEY=''
+GPG_OPTS=( $PASSWORD_STORE_GPG_OPTS "--quiet" "--yes" 
+"--compress-algo=none" "--no-encrypt-to" )
+GPG="gpg"
+
+#
+# initialize notes system
+#
+
+init (){		# setup directories and GPG key  to be used
+	# make notes directory
+
+	# make default notebook
+
+	# make pointer to default notebook
+
+	# make pointer to current notebook
+
+	# create first note 
+
+}
+
+#
+# note functions
+#
+note-add() {
+
+	# parse command line
+
+	# get note name
+
+	# create temporary note file
+
+	# spell check
+
+	# encrypt note file
+
+	# scrub temporary note file
+
+}
+
+note-view() {
+
+	# parse command line
+
+	# get note name 
+
+	# decrypt note
+
+}
+
+note-delete() {
+	
+	# parse command line
+
+	# get note filename
+
+	# get confirmation
+
+	# delete note
+
+}
+
+note-rename() {
+
+	# parse command line 
+
+	# get note filename
+	
+	# get new filename
+
+	# rename file 
+}
+
+#
+# notebook functions
+#
+
+notebook-add() {
+
+	# parse command line
+
+	# get notebook name
+
+	# create notebook directory
+
+}
+
+notebook-delete() {
+	
+	# parse command line
+
+	# get notebook name
+
+	# get confirmation
+
+	# delete notebook contents
+
+	# delete notebook
+}
+
+notebook-rename() {
+
+	# parse command line
+
+	# get notebook name
+
+	# get notebook new name
+
+	# rename notebook
+}
+
+
+
+
+
+
+
+
+
+
+
+
