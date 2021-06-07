@@ -276,24 +276,24 @@ SYSTEM:
 
 NOTES MANAGEMENT:
 
-	notes find|search 	find notes
-	notes insert|add	add a note
-	notes import		import a text file as a note
-	notes rename|mv		rename a note
-	notes copy|cp		copy a note
-	notes delete|rm		delete a note
-	notes edit|ed		edit a note
+	notes find|search 			find notes
+	notes insert|add note_title		add a note
+	notes import     file			import a text file as a note
+	notes rename|mv  note_title		rename a note (will prompt for new name)
+	notes copy|cp    note_title		copy a note (will prompt for new name)
+	notes delete|rm  note_title		delete a note
+	notes edit|ed    note_title		edit a note
 
 
 NOTEBOOK MANAGEMENT:
 	
-	notebook list|ls	list notebooks
-	notebook default	change default notebook
-	notebook use		use a notebook
-	notebook add|insert	add a notebook
-	notebook rename|mv	rename a notebook
-	notebook copy|cp	copy a notebook
-	notebook delete|rm	delete a notebook
+	notebook list|ls		list notebooks
+	notebook default    notebook	change default notebook
+	notebook use	    notebook	use a notebook
+	notebook add|insert notebook	add a notebook
+	notebook rename|mv  notebook	rename a notebook (will prompt for new name)
+	notebook copy|cp    notebook	copy a notebook (will prompt for new name)
+	notebook delete|rm  notebook	delete a notebook
 	
 
 
