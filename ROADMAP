@@ -1,0 +1,18 @@
+
+			STANDARD(?) UNIX NOTES			
+				
+				ROADMAP
+
+1.0 INITIAL RELEASE
+	- GPG encrypted notes
+	- add/delete/rename notes
+	- multiple notebooks
+	- add/delete/rename notebooks
+	- re-encrypt with new GPG key
+
+
+FUTURE FEATURES
+	- dedicated diary/journal function
+	- spell checking before encryption using aspell
+	- multiuser encryption
+	- different gpg keys per notebook
