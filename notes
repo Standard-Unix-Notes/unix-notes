@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh  
 #
 #	STANDARD(?) UNIX NOTES 
 #
@@ -23,11 +23,12 @@ GPG="gpg"
 
 cmd_init (){		# setup directories and GPG key  to be used
 	# key id for encryption 
-	local KEYID
-	list_private_keys
+	#KEYID
+	
 
 	# set umask to this user only
 	umask "${NOTES_UMASK:-077}"
+
 
 	# make notes directory
 	if [ ! -d "$NOTESDIR" ]; then
@@ -35,71 +36,95 @@ cmd_init (){		# setup directories and GPG key  to be used
 		mkdir $NOTESDIR
 	fi
 
+	create_config
+
 	# make default notebook
 
 	echo making default notebook 'notes' 
 	if [ ! -d "$DEFAULT_NOTEBOOK" ]; then
 		mkdir $DEFAULT_NOTEBOOK
-	fi 
+		echo Your default notebook $DEFAULT_NOTEBOOK has been created you may now create notes
 
-	# make pointer to default notebook
-	
-	if [ ! -f "$DEFAULT_POINTER" ] ; then
-		# point to DEFAULT_NOTEBOOK 
-		ln -s  $DEFAULT_NOTEBOOK $DEFAULT_POINTER 
+		if [ ! -f "$DEFAULT_POINTER" ] ; then
+			# point to DEFAULT_NOTEBOOK 
+			ln -s $DEFAULT_NOTEBOOK $DEFAULT_POINTER 
+		fi
+
+		if [ ! -f "$USE_POINTER" ] ; then
+			# point to DEFAULT_NOTEBOOK 
+			ln -s $DEFAULT_NOTEBOOK $USE_POINTER 
+		fi
 	fi
+}
 
-	# make pointer to current notebook
-	
-	if [ ! -f "$USE_POINTER" ] ; then
-		# point to DEFAULT_NOTEBOOK 
-		ln -s  $DEFAULT_NOTEBOOK $USE_POINTER 
-	fi
+create_config () {
 
+	touch $NOTESDIR/config
 
-	# create first note 
+	echo You have the following private keys on your keyring
+
+	gpg -K
+
+	echo By DEFAULT I will use the first key found as the key for encrypting
+	echo If this is NOT what is required please edit $NOTESDIR/config to
+	echo reflect the recipient you wish to use 
+	echo You will need to edit the KEY parameter and set it to the email 
+	echo address of the key you wish to use
+
+	KEY="`gpg -K | grep uid | head -1 | sed 's/>$//; s/^.*<//'`"
+	echo "KEY	$KEY" > $NOTESDIR/config
+
+	echo Default config written:
+
+	cat  $NOTESDIR/config
 
 }
 
-list_private_keys () {
-	echo "You have the following private keys available"
-
-	gpg -K 
+get_recipient() {
+	KEY=`grep KEY $NOTESDIR/config | sed s/^KEY// | tr -d [:blank:]`
 }
+
 #
 # note functions
 #
 
-encrypt_notefile () {
+encrypt_notefile() {
 
 	echo argv = $@
 }
 
 note-add() {
+	echo in note-add
 
-	echo argv = $@
-	# parse command line
+	notefile="$USE_POINTER/$@"
+	
+	if [ -f "$notefile.gpg" ] ; then
+		echo File exists ... cannot create
+	else
+		get_recipient 
+		echo we will encrypt for $KEY
 
-	# get note name
+		touch "$notefile"
 
-	# create temporary note file
+		# create temporary note file
+		$EDITOR "$notefile"
 
-	# spell check
+		# spell check
+		#aspell -c "$notefile"
 
-	# encrypt note file
+		# encrypt note file
+		$GPG -e -r $KEY $GPG_OPTS "$notefile"
 
-	# scrub temporary note file
-
+		# delete temporary note file now that ${notefile}.gpgs now created 
+		rm "$notefile"
+	fi
 }
 
 note-view() {
 
-	echo argv = $@
-	# parse command line
+	notefile="$USE_POINTER/$@"
 
-	# get note name 
-
-	# decrypt note
+	gpg -d "$notefile"
 
 }
 
@@ -134,6 +159,7 @@ note-rename() {
 
 notebook-add() {
 
+	echo notebook-add
 	echo argv = $@
 	# parse command line
 
@@ -200,6 +226,7 @@ NOTES MANAGEMENT:
 
 	notes find|search 	find notes
 	notes insert|add	add a note
+	notes import		import a text file as a note
 	notes rename|mv		rename a note
 	notes delete|rm		delete a note
 	notes edit|ed		edit a note
@@ -224,6 +251,22 @@ cmd_version () {
 	echo "Version $VERSION"
 }
 
+cmd_view () {
+
+	myoptions="$@"
+	
+	if [ "$1" = "" ]; then
+		echo No note specified
+		exit 1
+	fi
+
+	case $PROGRAM in 
+		
+		"notes") note-view $myoptions;;
+		"notebook") cmd_usage;;
+	esac
+}
+
 cmd_show () {
 	echo cmd_show
 }
@@ -233,7 +276,18 @@ cmd_find () {
 }
 
 cmd_insert () {
-	echo cmd_insert
+
+	myoptions="$@"
+
+	case $PROGRAM in 
+	
+		"notes") echo my options = ${myoptions} ; note-add $myoptions;;
+		"notebook") notebook-add $myoptions;;
+	esac
+}
+
+cmd_import () {
+	echo cmd_import will import a text file as a notE
 }
 
 cmd_generate () {
@@ -281,9 +335,11 @@ case "$1" in
         help|--help) shift;             cmd_usage "$@" ;;
         version|--version) shift;       cmd_version "$@" ;;
         show|ls|list) shift;            cmd_show "$@" ;;
+        view) shift;            	cmd_view "$@" ;;
         find|search) shift;             cmd_find "$@" ;;
         grep) shift;                    cmd_grep "$@" ;;
         insert|add) shift;              cmd_insert "$@" ;;
+        import) shift;              	cmd_import "$@" ;;
         edit|ed|-e) shift;              cmd_edit "$@" ;;
         generate) shift;                cmd_generate "$@" ;;
         delete|rm|remove) shift;        cmd_delete "$@" ;;
