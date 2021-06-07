@@ -88,11 +88,6 @@ get_recipient() {
 # note functions
 #
 
-encrypt_notefile() {
-
-	echo argv = $@
-}
-
 note-add() {
 	echo in note-add
 
@@ -123,9 +118,18 @@ note-add() {
 note-view() {
 
 	notefile="$USE_POINTER/$@"
+	
+	if [ -f "$notefile" ]; then 
 
-	gpg -d "$notefile"
+		gpg -d "$notefile" | ${PAGER:-more} 
 
+	elif [ -f "${notefile}.gpg" ]; then 
+
+		gpg -d "${notefile}.gpg" | ${PAGER:-more}
+
+	else 
+		echo Note file does not exist
+	fi
 }
 
 note-delete() {
@@ -256,7 +260,7 @@ cmd_view () {
 	myoptions="$@"
 	
 	if [ "$1" = "" ]; then
-		echo No note specified
+		echo No note specified on command line
 		exit 1
 	fi
 
