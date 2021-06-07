@@ -115,15 +115,39 @@ note-import() {
 	fi
 }
 
-
-
 note-view() {
 	notefile="$USE_POINTER/$@"
+
+	get_recipient
 	
-	if [ -f "$notefile" ]; then 
-		gpg -d "$notefile" | ${PAGER:-more} 
+	if [ -f "${notefile}" ]; then 
+		gpg -d "${notefile}" | ${PAGER:-more} 
 	elif [ -f "${notefile}.gpg" ]; then 
 		gpg -d "${notefile}.gpg" | ${PAGER:-more}
+	else 
+		echo Note file does not exist
+	fi
+}
+
+note-edit() {
+	notefile="$USE_POINTER/$@"
+	decrypted="`echo ${notefile} | sed s/.gpg//`"
+	
+	get_recipient 
+
+	echo $notefile
+	echo $decrypted
+	
+	if [ -f "$notefile" ]; then 
+		gpg -d -o "${decrypted}" "${notefile}" 
+		${EDITOR} "${decrypted}" 
+		$GPG -e -r $KEY $GPG_OPTS "${decrypted}"
+		rm ${decrypted}
+	elif [ -f "${notefile}.gpg" ]; then 
+		gpg -d -o "${decrypted}"  "${notefile}.gpg" 
+		${EDITOR} "${decrypted}" 
+		$GPG -e -r $KEY $GPG_OPTS "${decrypted}"
+		rm ${decrypted}
 	else 
 		echo Note file does not exist
 	fi
