@@ -104,6 +104,19 @@ note-add() {
 	fi
 }
 
+note-import() {
+	toimport="$@"
+	notefile="`basename ${toimport}`"
+
+	get_recipient
+	
+	if [ -f "${toimport}" ] ; then 
+		$GPG -e -r $KEY $GPG_OPTS -o  "${USE_POINTER}/${notefile}.gpg" "${notefile}" 
+	fi
+}
+
+
+
 note-view() {
 	notefile="$USE_POINTER/$@"
 	
@@ -341,7 +354,12 @@ cmd_insert () {
 }
 
 cmd_import () {
-	echo cmd_import will import a text file as a notE
+	myoptions="$@"
+
+	case $PROGRAM in 
+		"notes") echo my options = ${myoptions} ; note-import $myoptions;;
+		"notebook") cmd_usage;;
+	esac
 }
 
 cmd_generate () {
