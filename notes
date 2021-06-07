@@ -7,19 +7,23 @@
 # The idea came from 'pass' the standard unix password manager
 
 # VARIABLES
-NOTES_UMASK:-'600'
-NOTESDIR:-$(HOME)/.notes
+VERSION=0.1
+NOTES_UMASK='600'
+NOTESDIR="${HOME}/.notes"
 GPGKEY=''
-GPG_OPTS=( $PASSWORD_STORE_GPG_OPTS "--quiet" "--yes" 
-"--compress-algo=none" "--no-encrypt-to" )
+GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
 
 #
 # initialize notes system
 #
 
-init (){		# setup directories and GPG key  to be used
+cmd_init (){		# setup directories and GPG key  to be used
 	# make notes directory
+	echo $NOTESDIR
+	
+	# set umask to this user only
+	umask "${NOTES_UMASK:-077}"
 
 	# make default notebook
 
@@ -34,6 +38,7 @@ init (){		# setup directories and GPG key  to be used
 #
 # note functions
 #
+
 note-add() {
 
 	# parse command line
@@ -121,11 +126,130 @@ notebook-rename() {
 	# rename notebook
 }
 
+#
+# OTHER COMMANDS
+#
+
+cmd_extension_or_show () {
+	echo inside cmd_extension_or_show
+
+	cmd_usage
+}
+
+cmd_usage () {
+echo cmd_usage
+cat << ENDHELP
+
+		Standard (?) Unix Notes system
+
+GPG encrypted notes system for BSD and Linux systems
+
+SYSTEM:
+
+	notes init		initialize notes system
+	notes newkey		change GPG key 
+	notes help		show help
+	notes version		show version
+	notes show|ls|list	list notes in current notebook
+
+
+NOTES MANAGEMENT:
+
+	notes find|search 	find notes
+	notes insert|add	add a note
+	notes rename|mv		rename a note
+	notes delete|rm		delete a note
+	notes edit|ed		edit a note
+
+
+NOTEBOOK MANAGEMENT:
+	
+	notebook list|ls	list notebooks
+	notebook default	change default notebook
+	notebook use		use a notebook
+	notebook add|insert	add a notebook
+	notebook rename|mv	rename a notebook
+	notebook delete|rm	delete a notebook
+	
 
 
 
+ENDHELP
+}
+
+cmd_version () {
+	echo "Version $VERSION"
+}
+
+cmd_show () {
+	echo cmd_show
+}
+
+cmd_find () {
+	echo cmd_find
+}
+
+cmd_insert () {
+	echo cmd_insert
+}
+
+cmd_generate () {
+	echo cmd_generate
+}
+
+cmd_delete () {
+	echo cmd_delete
+}
+
+cmd_edit () {
+	echo cmd_edit
+}
+
+cmd_copy_move () {
+	echo cmd_copy_move
+}
+
+cmd_grep () {
+	echo grep
+}
+
+cmd_git () {
+	echo git not implemented yet
+}
+
+cmd_newkey () {
+	echo newkey
+}
+
+#########################
+#			#
+#	MAIN PROGRAM 	#
+#			#
+#########################
 
 
+
+PROGRAM="${0##*/}"
+COMMAND="$1"
+
+case "$1" in
+        init) shift;                    cmd_init "$@" ;;
+        newkey) shift;                  cmd_newkey "$@" ;;
+        help|--help) shift;             cmd_usage "$@" ;;
+        version|--version) shift;       cmd_version "$@" ;;
+        show|ls|list) shift;            cmd_show "$@" ;;
+        find|search) shift;             cmd_find "$@" ;;
+        grep) shift;                    cmd_grep "$@" ;;
+        insert|add) shift;              cmd_insert "$@" ;;
+        edit|ed|-e) shift;              cmd_edit "$@" ;;
+        generate) shift;                cmd_generate "$@" ;;
+        delete|rm|remove) shift;        cmd_delete "$@" ;;
+        rename|mv) shift;               cmd_copy_move "move" "$@" ;;
+        copy|cp) shift;                 cmd_copy_move "copy" "$@" ;;
+        git) shift;                     cmd_git "$@" ;;
+        *)                              cmd_extension_or_show "$@" ;;
+esac
+exit 0
 
 
 
