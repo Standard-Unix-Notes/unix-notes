@@ -22,13 +22,9 @@ GPG="gpg"
 #
 
 cmd_init (){		# setup directories and GPG key  to be used
-	# key id for encryption 
-	#KEYID
-	
 
 	# set umask to this user only
 	umask "${NOTES_UMASK:-077}"
-
 
 	# make notes directory
 	if [ ! -d "$NOTESDIR" ]; then
@@ -39,8 +35,7 @@ cmd_init (){		# setup directories and GPG key  to be used
 	create_config
 
 	# make default notebook
-
-	echo making default notebook 'notes' 
+	echo making default notebook \'${DEFAULT_NOTEBOOK}\' 
 	if [ ! -d "$DEFAULT_NOTEBOOK" ]; then
 		mkdir $DEFAULT_NOTEBOOK
 		echo Your default notebook $DEFAULT_NOTEBOOK has been created you may now create notes
@@ -58,12 +53,10 @@ cmd_init (){		# setup directories and GPG key  to be used
 }
 
 create_config () {
-
 	touch $NOTESDIR/config
 	chmod 600 $NOTESDIR/config
 
 	echo You have the following private keys on your keyring
-
 	gpg -K
 
 	echo By DEFAULT I will use the first key found as the key for encrypting
@@ -76,9 +69,7 @@ create_config () {
 	echo "KEY	$KEY" > $NOTESDIR/config
 
 	echo Default config written:
-
 	cat  $NOTESDIR/config
-
 }
 
 get_recipient() {
@@ -90,15 +81,12 @@ get_recipient() {
 #
 
 note-add() {
-	echo in note-add
-
 	notefile="$USE_POINTER/$@"
 	
 	if [ -f "$notefile.gpg" ] ; then
 		echo File exists ... cannot create
 	else
 		get_recipient 
-		echo we will encrypt for $KEY
 
 		touch "$notefile"
 
@@ -117,50 +105,56 @@ note-add() {
 }
 
 note-view() {
-
 	notefile="$USE_POINTER/$@"
 	
 	if [ -f "$notefile" ]; then 
-
 		gpg -d "$notefile" | ${PAGER:-more} 
-
 	elif [ -f "${notefile}.gpg" ]; then 
-
 		gpg -d "${notefile}.gpg" | ${PAGER:-more}
-
 	else 
 		echo Note file does not exist
 	fi
 }
 
 note-delete() {
-	
 	notefile="$USE_POINTER/$@"
 	
 	if [ -f "$notefile" ]; then 
-
 		rm -i "$notefile" 
-
 	elif [ -f "${notefile}.gpg" ]; then 
-
 		rm -i "${notefile}.gpg" 
-
 	else 
 		echo Note file does not exist
 	fi
-
 }
 
 note-rename() {
 
 	echo argv = $@
-	# parse command line 
-
-	# get note filename
 	
-	# get new filename
+	MVCP="$1"
+	shift
 
-	# rename file 
+	echo command = "$MVCP"
+	echo argv now $@
+
+	notefile="$USE_POINTER/$@"
+
+	read -p "Please enter new name for note: "  newname
+	newnotefile="${USE_POINTER}/${newname}"
+
+	echo old notefile $notefile
+	echo new notefile $newnotefile
+
+	if [ -f "$notefile" ] ; then
+		echo $notefile exists .... renaming
+		$MVCP  "$notefile" "$newnotefile"
+	elif [ -f "${notefile}.gpg" ] ; then 
+		echo $notefile exists .... renaming
+		$MVCP   "$notefile" "$newnotefile"
+	else
+		echo Note $notefile does not exist, aborting...
+	fi
 }
 
 #
@@ -184,9 +178,7 @@ notebook-add() {
 
 notebook-delete() {
 	
-	echo argv = $@
 	notebook="${NOTESDIR}/$@"
-	echo $notebook
 
 	if [ ! -d "${notebook}" ] ; then
 		echo Error: Notebook \'$notebook\' does not exist
@@ -207,13 +199,31 @@ notebook-delete() {
 notebook-rename() {
 
 	echo argv = $@
-	# parse command line
+	
+	MVCP="$1"
+	shift
 
-	# get notebook name
+	if [ "$MVCP" = "cp" ] ; then
+		MVCP="cp -r "
+	fi
 
-	# get notebook new name
+	echo command = "$MVCP"
+	echo argv now $@
 
-	# rename notebook
+	notebook="$NOTESDIR/$@"
+
+	read -p "Please enter new name for note: "  newname
+	newnotebook="${NOTESDIR}/${newname}"
+
+	echo old notebook $notebook
+	echo new notebook $newnotebook
+
+	if [ -d "$notebook" ] ; then
+		echo $notebook exists .... renaming
+		$MVCP  "$notebook" "$newnotebook"
+	else
+		echo Note $notebook does not exist, aborting...
+	fi
 }
 
 #
@@ -319,7 +329,6 @@ cmd_delete () {
 	myoptions="$@"
 
 	case $PROGRAM in 
-	
 		"notes") echo my options = ${myoptions} ; note-delete $myoptions;;
 		"notebook") notebook-delete $myoptions;;
 	esac
@@ -327,10 +336,23 @@ cmd_delete () {
 
 cmd_edit () {
 	echo cmd_edit
+	myoptions="$@"
+
+	case $PROGRAM in 
+		"notes") echo my options = ${myoptions} ; note-edit $myoptions;;
+		"notebook") notebook-edit $myoptions;;
+	esac
 }
 
 cmd_copy_move () {
 	echo cmd_copy_move
+	myoptions="$@"
+	echo myoptions = $myoptions
+
+	case $PROGRAM in 
+		"notes") echo my options = ${myoptions} ; note-rename $myoptions;;
+		"notebook") notebook-rename $myoptions;;
+	esac
 }
 
 cmd_grep () {
@@ -370,8 +392,8 @@ case "$1" in
         edit|ed|-e) shift;              cmd_edit "$@" ;;
         generate) shift;                cmd_generate "$@" ;;
         delete|rm|remove) shift;        cmd_delete "$@" ;;
-        rename|mv) shift;               cmd_copy_move "move" "$@" ;;
-        copy|cp) shift;                 cmd_copy_move "copy" "$@" ;;
+        rename|mv) shift;               cmd_copy_move "mv" "$@" ;;
+        copy|cp) shift;                 cmd_copy_move "cp" "$@" ;;
         git) shift;                     cmd_git "$@" ;;
         *)                              cmd_extension_or_show "$@" ;;
 esac
