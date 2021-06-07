@@ -8,8 +8,11 @@
 
 # VARIABLES
 VERSION=0.1
-NOTES_UMASK='600'
+#NOTES_UMASK='077'
 NOTESDIR="${HOME}/.notes"
+DEFAULT_NOTEBOOK="${NOTESDIR}/notes"
+DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
+USE_POINTER="${NOTESDIR}/USE"
 GPGKEY=''
 GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
@@ -19,22 +22,51 @@ GPG="gpg"
 #
 
 cmd_init (){		# setup directories and GPG key  to be used
-	# make notes directory
-	echo $NOTESDIR
-	
+	# key id for encryption 
+	local KEYID
+
+	list_private_keys
+
 	# set umask to this user only
 	umask "${NOTES_UMASK:-077}"
 
+	# make notes directory
+	if [ ! -d "$NOTESDIR" ]; then
+		echo Creating notes directory:  $NOTESDIR
+		mkdir $NOTESDIR
+	fi
+
 	# make default notebook
 
+	echo making default notebook 'notes' 
+	if [ ! -d "$DEFAULT_NOTEBOOK" ]; then
+		mkdir $DEFAULT_NOTEBOOK
+	fi 
+
 	# make pointer to default notebook
+	
+	if [ ! -f "$DEFAULT_POINTER" ] ; then
+		# point to DEFAULT_NOTEBOOK 
+		ln -s  $DEFAULT_NOTEBOOK $DEFAULT_POINTER 
+	fi
 
 	# make pointer to current notebook
+	
+	if [ ! -f "$USE_POINTER" ] ; then
+		# point to DEFAULT_NOTEBOOK 
+		ln -s  $DEFAULT_NOTEBOOK $USE_POINTER 
+	fi
+
 
 	# create first note 
 
 }
 
+list_private_keys () {
+	echo "You have the following private keys available"
+
+	gpg -K 
+}
 #
 # note functions
 #
