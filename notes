@@ -10,7 +10,7 @@
 VERSION=0.1
 #NOTES_UMASK='077'
 NOTESDIR="${HOME}/.notes"
-DEFAULT_NOTEBOOK="${NOTESDIR}/notes"
+INITIAL_NOTEBOOK="${NOTESDIR}/notes"
 DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
 USE_POINTER="${NOTESDIR}/USE"
 GPGKEY=''
@@ -32,16 +32,16 @@ cmd_init (){		# setup directories and GPG key  to be used
 
 	create_config
 
-	echo making default notebook \'${DEFAULT_NOTEBOOK}\' 
-	if [ ! -d "$DEFAULT_NOTEBOOK" ]; then
-		mkdir $DEFAULT_NOTEBOOK
-		echo Your default notebook $DEFAULT_NOTEBOOK has been created you may now create notes
-        # point to DEFAULT_NOTEBOOK with DEFAULT_POINTER and USE_POINTER
+	echo making default notebook \'${INITIAL_NOTEBOOK}\' 
+	if [ ! -d "$INITIAL_NOTEBOOK" ]; then
+		mkdir $INITIAL_NOTEBOOK
+		echo Your default notebook $INITIAL_NOTEBOOK has been created you may now create notes
+        # point to INITIAL_NOTEBOOK with DEFAULT_POINTER and USE_POINTER
 		if [ ! -f "$DEFAULT_POINTER" ] ; then
-			ln -s $DEFAULT_NOTEBOOK $DEFAULT_POINTER 
+			ln -s $INITIAL_NOTEBOOK $DEFAULT_POINTER 
 		fi
 		if [ ! -f "$USE_POINTER" ] ; then
-			ln -s $DEFAULT_NOTEBOOK $USE_POINTER 
+			ln -s $INITIAL_NOTEBOOK $USE_POINTER 
 		fi
 	fi
 }
@@ -404,27 +404,14 @@ cmd_default () {
 cmd_use () {
     nb="$@"
     notebook="$NOTESDIR/$nb"
-    echo nb = $nb
-    echo notebook = $notebook
-    echo use pointer = $USE_POINTER
-    echo default pointer = $DEFAULT_POINTER
-    defaultnbval="`readlink -f $DEFAULT_POINTER`"
-    defaultnb="`basename $DEFAULT_POINTER`"
-    echo default notebookval = $defaultnbval
-    echo default notebook = $defaultnb
-    echo ln -sf "$NOTESDIR/`basename $defaultnbval`" "$USE_POINTER"
-    #echo ln -sf "$USE_POINTER" "$NOTESDIR/`basename $defaultnb`" 
-    echo ln -sf "$nb" "$USE_POINTER"
 
     if [ "$nb" = "" ]  ;then
+        defaultnbval="`readlink -f $DEFAULT_POINTER`"
+        defaultnb="`basename $DEFAULT_POINTER`"
         echo no notebook specified use default
-     unlink "$USE_POINTER"
-     ln -s "$defaultnb" "$USE_POINTER"
-     #ln -sf "$USE_POINTER" "$defaultnbval" 
-     #echo ln -sf "$NOTESDIR/`basename $defaultnbval`" "$USE_POINTER"
-        #ln -sf "$NOTESDIR/`basename $defaultnb`" "$USE_POINTER"
-        #ln -sf "$USE_POINTER" "$NOTESDIR/`basename $defaultnb`" 
-        # ln -sf "`readlink -f $DEFAULT_POINTER`" "$USE_POINTER"
+        unlink "$USE_POINTER"
+        ln -s "`basename $defaultnbval`" "$USE_POINTER"
+        #ln -s "`$defaultnbval`" "$USE_POINTER"
         exit 0 
     fi
     if [ -d "$notebook" ] ; then
