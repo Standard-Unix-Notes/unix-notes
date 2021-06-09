@@ -1,4 +1,4 @@
-#!/bin/sh  -x
+#!/bin/sh 
 #
 #	STANDARD(?) UNIX NOTES 
 #
@@ -292,7 +292,7 @@ NOTEBOOK MANAGEMENT:
 	
 	notebook list|ls		        list notebooks
 	notebook default    notebook	change default notebook
-	notebook use	    notebook	use a notebook
+	notebook use	    notebook	use a notebook (no notebook: use default)
 	notebook add|insert notebook	add a notebook
 	notebook rename|mv  notebook	rename a notebook (will prompt for new name)
 	notebook copy|cp    notebook	copy a notebook (will prompt for new name)
@@ -383,26 +383,54 @@ cmd_git () {
 
 cmd_default () {
 	echo set default notebook
-    notebook="$NOTESDIR/$@"
+    nb="$@"
+    notebook="$NOTESDIR/$nb"
+    echo nb = $nb
+    echo notebook = $notebook
 
+    if [ "$nb" = "" ]  ;then
+        echo Default notebook = "`readlink -f $DEFAULT_POINTER`"
+        exit 0
+    fi
     if [ -d "$notebook" ] ; then
         echo target notebook exists
+        unlink  "$DEFAULT_POINTER" 
+        ln -sf "$nb" "$DEFAULT_POINTER" 
     else
         echo Cannot set default notebook to $notebook as it does not exist
     fi
 }
 
 cmd_use () {
-	echo use notebook
     nb="$@"
     notebook="$NOTESDIR/$nb"
     echo nb = $nb
     echo notebook = $notebook
+    echo use pointer = $USE_POINTER
+    echo default pointer = $DEFAULT_POINTER
+    defaultnbval="`readlink -f $DEFAULT_POINTER`"
+    defaultnb="`basename $DEFAULT_POINTER`"
+    echo default notebookval = $defaultnbval
+    echo default notebook = $defaultnb
+    echo ln -sf "$NOTESDIR/`basename $defaultnbval`" "$USE_POINTER"
+    #echo ln -sf "$USE_POINTER" "$NOTESDIR/`basename $defaultnb`" 
+    echo ln -sf "$nb" "$USE_POINTER"
 
+    if [ "$nb" = "" ]  ;then
+        echo no notebook specified use default
+     unlink "$USE_POINTER"
+     ln -s "$defaultnb" "$USE_POINTER"
+     #ln -sf "$USE_POINTER" "$defaultnbval" 
+     #echo ln -sf "$NOTESDIR/`basename $defaultnbval`" "$USE_POINTER"
+        #ln -sf "$NOTESDIR/`basename $defaultnb`" "$USE_POINTER"
+        #ln -sf "$USE_POINTER" "$NOTESDIR/`basename $defaultnb`" 
+        # ln -sf "`readlink -f $DEFAULT_POINTER`" "$USE_POINTER"
+        exit 0 
+    fi
     if [ -d "$notebook" ] ; then
         echo target notebook exists
-        unlink  "$NOTESDIR/USE" 
-        ln -sf "$notebook" "$NOTESDIR/USE" 
+        unlink  "$USE_POINTER" 
+        ln -sf "$nb" "$USE_POINTER" 
     else
         echo Cannot use $notebook as $nb does not exist
     fi
