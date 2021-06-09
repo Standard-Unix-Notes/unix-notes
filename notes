@@ -133,7 +133,7 @@ validate_gpg_keyid () {
 
 }
 
-recrypt_file () {
+recrypt_file () { ## not used
     newkey = "$1"
     target = "$2"
 
@@ -254,6 +254,7 @@ note_rename () {
 	shift
 	notefile="$USE_POINTER/$@"
 	read -p "Please enter new name for note: "  newname
+    newname="${newname// /_}"
 
 	case $notefile in
 		*gpg) skip;;
@@ -324,6 +325,7 @@ notebook_rename () {
 
 	notebook="$NOTESDIR/$@"
 	read -p "Please enter new name for note: "  newname
+    newname="${newname// /_}"
 	newnotebook="${NOTESDIR}/${newname}"
 
 	case $MVCP in 
@@ -421,6 +423,7 @@ cmd_find () {
 
 cmd_insert () {
 	myoptions="$@"
+    myoptions="${myoptions// /_}"
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note_add $myoptions;;
 		"notebook") notebook_add $myoptions;;
@@ -429,6 +432,7 @@ cmd_insert () {
 
 cmd_import () {
 	myoptions="$@"
+    myoptions="${myoptions// /_}"
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note_import $myoptions;;
 		"notebook") cmd_usage;;
@@ -457,6 +461,7 @@ cmd_edit () {
 
 cmd_copy_move () {
 	myoptions="$@"
+    myoptions="${myoptions// /_}"
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note_rename $myoptions;;
 		"notebook") notebook_rename $myoptions;;
