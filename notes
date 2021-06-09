@@ -1,4 +1,4 @@
-#!/bin/sh  
+#!/bin/sh  -x
 #
 #	STANDARD(?) UNIX NOTES 
 #
@@ -23,10 +23,8 @@ GPG="gpg"
 
 cmd_init (){		# setup directories and GPG key  to be used
 
-	# set umask to this user only
 	umask "${NOTES_UMASK:-077}"
 
-	# make notes directory
 	if [ ! -d "$NOTESDIR" ]; then
 		echo Creating notes directory:  $NOTESDIR
 		mkdir $NOTESDIR
@@ -34,19 +32,15 @@ cmd_init (){		# setup directories and GPG key  to be used
 
 	create_config
 
-	# make default notebook
 	echo making default notebook \'${DEFAULT_NOTEBOOK}\' 
 	if [ ! -d "$DEFAULT_NOTEBOOK" ]; then
 		mkdir $DEFAULT_NOTEBOOK
 		echo Your default notebook $DEFAULT_NOTEBOOK has been created you may now create notes
-
+        # point to DEFAULT_NOTEBOOK with DEFAULT_POINTER and USE_POINTER
 		if [ ! -f "$DEFAULT_POINTER" ] ; then
-			# point to DEFAULT_NOTEBOOK 
 			ln -s $DEFAULT_NOTEBOOK $DEFAULT_POINTER 
 		fi
-
 		if [ ! -f "$USE_POINTER" ] ; then
-			# point to DEFAULT_NOTEBOOK 
 			ln -s $DEFAULT_NOTEBOOK $USE_POINTER 
 		fi
 	fi
@@ -59,7 +53,7 @@ create_config () {
 	echo You have the following private keys on your keyring
 	gpg -K
 
-	echo By DEFAULT I will use the first key found as the key for encrypting
+	echo By DEFAULT we will use the first key found as the key for encrypting
 	echo If this is NOT what is required please edit $NOTESDIR/config to
 	echo reflect the recipient you wish to use 
 	echo You will need to edit the KEY parameter and set it to the email 
@@ -72,7 +66,7 @@ create_config () {
 	cat  $NOTESDIR/config
 }
 
-get_recipient() {
+get_recipient () {
 	KEY=`grep KEY $NOTESDIR/config | sed s/^KEY// | tr -d [:blank:]`
 }
 
@@ -80,7 +74,7 @@ get_recipient() {
 # note functions
 #
 
-note-add() {
+note_add () {
 	notefile="$USE_POINTER/$@"
 	
 	if [ -f "$notefile.gpg" ] ; then
@@ -93,18 +87,16 @@ note-add() {
 		# create temporary note file
 		$EDITOR "$notefile"
 
-		# spell check
 		#aspell -c "$notefile"
 
 		# encrypt note file
 		$GPG -e -r $KEY $GPG_OPTS "$notefile"
 
-		# delete temporary note file now that ${notefile}.gpgs now created 
 		rm "$notefile"
 	fi
 }
 
-note-import() {
+note_import () {
 	toimport="$@"
 	notefile="`basename ${toimport}`"
 
@@ -115,7 +107,7 @@ note-import() {
 	fi
 }
 
-note-view() {
+note_view () {
 	notefile="$USE_POINTER/$@"
 
 	get_recipient
@@ -129,7 +121,7 @@ note-view() {
 	fi
 }
 
-note-edit() {
+note_edit () {
 	notefile="$USE_POINTER/$@"
 	decrypted="`echo ${notefile} | sed s/.gpg//`"
 	
@@ -153,11 +145,11 @@ note-edit() {
 	fi
 }
 
-note-list() {
+note_list () {
 	ls "${USE_POINTER}" | column | more 
 }
 
-note-delete() {
+note_delete () {
 	notefile="$USE_POINTER/$@"
 	
 	if [ -f "$notefile" ]; then 
@@ -169,7 +161,7 @@ note-delete() {
 	fi
 }
 
-note-rename() {
+note_rename () {
 	MVCP="$1"
 	shift
 	notefile="$USE_POINTER/$@"
@@ -206,7 +198,7 @@ note-rename() {
 # notebook functions
 #
 
-notebook-add() {
+notebook_add () {
 	new_notebook="${NOTESDIR}/$@"
 	if [ ! -d "$new_notebook" ] ; then
 		mkdir "$new_notebook"
@@ -217,7 +209,7 @@ notebook-add() {
 	fi
 }
 
-notebook-delete() {
+notebook_delete () {
 	notebook="${NOTESDIR}/$@"
 	if [ ! -d "${notebook}" ] ; then
 		echo Error: Notebook \'$notebook\' does not exist
@@ -234,7 +226,7 @@ notebook-delete() {
 	fi
 }
 
-notebook-rename() {
+notebook_rename () {
 	MVCP="$1"
 	shift
 
@@ -259,7 +251,7 @@ notebook-rename() {
 	fi
 }
 
-notebook-list () {
+notebook_list () {
 	ls "${NOTESDIR}" | sed 's/DEFAULT//; s/USE//; s/config//' | column | more 
 }
 
@@ -280,16 +272,15 @@ GPG encrypted notes system for BSD and Linux systems
 
 SYSTEM:
 
-	notes init		initialize notes system
+	notes init		    initialize notes system
 	notes newkey		change GPG key 
-	notes help		show help
+	notes help		    show help
 	notes version		show version
 	notes show|ls|list	list notes in current notebook
 
-
 NOTES MANAGEMENT:
 
-	notes find|search 			find notes
+	notes find|search 			    find notes   [YET TO BE IMPLMENTED]
 	notes insert|add note_title		add a note
 	notes import     file			import a text file as a note
 	notes rename|mv  note_title		rename a note (will prompt for new name)
@@ -297,10 +288,9 @@ NOTES MANAGEMENT:
 	notes delete|rm  note_title		delete a note
 	notes edit|ed    note_title		edit a note
 
-
 NOTEBOOK MANAGEMENT:
 	
-	notebook list|ls		list notebooks
+	notebook list|ls		        list notebooks
 	notebook default    notebook	change default notebook
 	notebook use	    notebook	use a notebook
 	notebook add|insert notebook	add a notebook
@@ -322,7 +312,7 @@ cmd_view () {
 		exit 1
 	fi
 	case $PROGRAM in 
-		"notes") note-view $myoptions;;
+		"notes") note_view $myoptions;;
 		"notebook") cmd_usage;;
 	esac
 }
@@ -330,8 +320,8 @@ cmd_view () {
 cmd_show () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") note-list $myoptions;;
-		"notebook") notebook-list $myoptions;;
+		"notes") note_list $myoptions;;
+		"notebook") notebook_list $myoptions;;
 	esac
 }
 
@@ -342,44 +332,44 @@ cmd_find () {
 cmd_insert () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note-add $myoptions;;
-		"notebook") notebook-add $myoptions;;
+		"notes") echo my options = ${myoptions} ; note_add $myoptions;;
+		"notebook") notebook_add $myoptions;;
 	esac
 }
 
 cmd_import () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note-import $myoptions;;
+		"notes") echo my options = ${myoptions} ; note_import $myoptions;;
 		"notebook") cmd_usage;;
 	esac
 }
 
 cmd_generate () {
-	echo cmd_generate
+	echo cmd_generate not implmented yet
 }
 
 cmd_delete () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note-delete $myoptions;;
-		"notebook") notebook-delete $myoptions;;
+		"notes") echo my options = ${myoptions} ; note_delete $myoptions;;
+		"notebook") notebook_delete $myoptions;;
 	esac
 }
 
 cmd_edit () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note-edit $myoptions;;
-		"notebook") notebook-edit $myoptions;;
+		"notes") echo my options = ${myoptions} ; note_edit $myoptions;;
+		"notebook") notebook_edit $myoptions;;
 	esac
 }
 
 cmd_copy_move () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note-rename $myoptions;;
-		"notebook") notebook-rename $myoptions;;
+		"notes") echo my options = ${myoptions} ; note_rename $myoptions;;
+		"notebook") notebook_rename $myoptions;;
 	esac
 }
 
@@ -391,14 +381,41 @@ cmd_git () {
 	echo git not implemented yet
 }
 
+cmd_default () {
+	echo set default notebook
+    notebook="$NOTESDIR/$@"
+
+    if [ -d "$notebook" ] ; then
+        echo target notebook exists
+    else
+        echo Cannot set default notebook to $notebook as it does not exist
+    fi
+}
+
+cmd_use () {
+	echo use notebook
+    nb="$@"
+    notebook="$NOTESDIR/$nb"
+    echo nb = $nb
+    echo notebook = $notebook
+
+    if [ -d "$notebook" ] ; then
+        echo target notebook exists
+        unlink  "$NOTESDIR/USE" 
+        ln -sf "$notebook" "$NOTESDIR/USE" 
+    else
+        echo Cannot use $notebook as $nb does not exist
+    fi
+}
+
 cmd_newkey () {
 	echo newkey
 }
 
 #########################
-#			#
-#	MAIN PROGRAM 	#
-#			#
+#                      	#
+#	MAIN PROGRAM        #
+#                       #
 #########################
 
 PROGRAM="${0##*/}"
@@ -406,11 +423,13 @@ COMMAND="$1"
 
 case "$1" in
         init) shift;                    cmd_init "$@" ;;
+        default) shift;                 cmd_default "$@" ;;
+        use) shift;                     cmd_use "$@" ;;
         newkey) shift;                  cmd_newkey "$@" ;;
         help|--help) shift;             cmd_usage "$@" ;;
         version|--version) shift;       cmd_version "$@" ;;
         show|ls|list) shift;            cmd_show "$@" ;;
-        view) shift;            	cmd_view "$@" ;;
+        view) shift;            	    cmd_view "$@" ;;
         find|search) shift;             cmd_find "$@" ;;
         grep) shift;                    cmd_grep "$@" ;;
         insert|add) shift;              cmd_insert "$@" ;;
