@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/sh  
 #
 #	STANDARD(?) UNIX NOTES 
 #
@@ -7,15 +7,18 @@
 # The idea came from 'pass' the standard unix password manager
 
 # VARIABLES
-VERSION=0.1
+VERSION=1.0
 #NOTES_UMASK='077'
 NOTESDIR="${HOME}/.notes"
+CONFIGFILE="${NOTESDIR}/config"
 INITIAL_NOTEBOOK="${NOTESDIR}/notes"
 DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
 USE_POINTER="${NOTESDIR}/USE"
 GPGKEY=''
 GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
+SHREDCMD="rm"
+#SHREDCMD="shred"
 
 #
 # initialize notes system
@@ -47,11 +50,16 @@ cmd_init (){		# setup directories and GPG key  to be used
 }
 
 create_config () {
-	touch $NOTESDIR/config
-	chmod 600 $NOTESDIR/config
+	touch $CONFIGFILE
+	chmod 600 $CONFIGFILE
 
 	echo You have the following private keys on your keyring
 	gpg -K
+
+    if [ "`gpg -K | wc -l`" = "0" ] ; then 
+        echo No Private keys in keyring ... aborting
+        exit 1
+    fi 
 
 	echo By DEFAULT we will use the first key found as the key for encrypting
 	echo If this is NOT what is required please edit $NOTESDIR/config to
@@ -60,16 +68,96 @@ create_config () {
 	echo address of the key you wish to use
 
 	KEY="`gpg -K | grep uid | head -1 | sed 's/>$//; s/^.*<//'`"
-	echo "KEY	$KEY" > $NOTESDIR/config
+	echo "KEY	$KEY" > $CONFIGFILE
 
 	echo Default config written:
-	cat  $NOTESDIR/config
+	cat  $CONFIGFILE
 }
 
 get_recipient () {
-	KEY=`grep KEY $NOTESDIR/config | sed s/^KEY// | tr -d [:blank:]`
+	KEY=`grep KEY $CONFIGFILE| sed s/^KEY// | tr -d [:blank:]`
 }
 
+get_gpg_keyid () {
+    newkeyid="$1"
+    echo newkeyid supplied $newkeyid
+
+    if [ "$newkeyid" != "" ] ; then
+
+        validate_gpg_keyid  $newkeyid
+
+        echo valid gpg key $newkeyid
+    else
+        echo No key supplied:  
+    fi
+
+}
+
+validate_gpg_keyid () {
+    testkey="$1"
+    keyids="/tmp/keyids.$$"
+
+    gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
+
+    echo testing key length
+    if [ "${#testkey}" != 16 ] ; then 
+        echo Key supplied $testkey is wrong length: length = ${#testkey}
+        echo Key length should be 16 characters
+        echo Valid keys are:
+        cat $keyids
+        rm $keyids
+        exit 1
+    fi
+
+
+    echo valid keyids are ... 
+    cat $keyids
+    echo Testing $testkey
+
+    grep $testkey $keyids  > /dev/null
+    isvalidgpgkey="$?"
+    echo testing result = $isvalidgpgkey
+
+    if [ "$isvalidgpgkey" = "0" ] ; then
+        echo valid given 
+
+    else
+        echo Invalid GPG keyid \n\n
+
+        echo Valid GPG keys are 
+        cat $keyids
+        echo \n\n Type 'gpg -k <keyid> to find out more about key'
+        #rm $keyids
+        exit 1
+    fi
+
+}
+
+recrypt_file () {
+    newkey = "$1"
+    target = "$2"
+
+    get_recipient 
+
+    echo decrypt from $KEY
+    echo filename = $target
+    echo new gpg key = $newkey
+
+}
+
+get_gpg_key_uids () {    # unused but logic may be used at further date
+    keyids="/tmp/keyids.$$"
+    gpguids="/tmp/uids.$$"
+
+    gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
+
+    echo keyids are
+    cat $keyids
+    echo Available keys 
+    cat $keyids | xargs -n 1 gpg -k | grep ^uid | sed 's/>$//; s/^.*<//'  > $gpguids
+    cat $gpguids | sort  |  nl
+
+}
 #
 # note functions
 #
@@ -277,11 +365,13 @@ SYSTEM:
 	notes help		    show help
 	notes version		show version
 	notes show|ls|list	list notes in current notebook
+    notes newkey email  change GPG key 
 
 NOTES MANAGEMENT:
 
-	notes find|search 			    find notes   [YET TO BE IMPLMENTED]
+	notes find|search 			    find notes   [YET TO BE IMPLEMENTED]
 	notes insert|add note_title		add a note
+	notes view|cat   note_title		view a note
 	notes import     file			import a text file as a note
 	notes rename|mv  note_title		rename a note (will prompt for new name)
 	notes copy|cp    note_title		copy a note (will prompt for new name)
@@ -346,7 +436,7 @@ cmd_import () {
 }
 
 cmd_generate () {
-	echo cmd_generate not implmented yet
+	echo cmd_generate not implemented yet
 }
 
 cmd_delete () {
@@ -424,8 +514,27 @@ cmd_use () {
 }
 
 cmd_newkey () {
-	echo newkey
+    mynewkey="$1"
+
+	get_recipient
+    get_gpg_keyid   $mynewkey
+
+    # now recrypt files 
+    find ~/.notes -name \*.gpg | sed s/.gpg// | \
+
+        while read filen ; 
+        do 
+            echo $filen; 
+            gpg -o "${filen}" -d "${filen}.gpg" 
+            gpg -r ${mynewkey} -e "${filen}"  && ${SHREDCMD} "${filen}"
+            
+        done
+   
+    # need to fix up config file now ...
+    NEWUSER="`gpg -k ${mynewkey} | grep uid |  head -1 | sed 's/>$//; s/^.*<//' `"
+    sed -i s/^KEY.*$/KEY\\t${NEWUSER}/   ${CONFIGFILE}
 }
+
 
 #########################
 #                      	#
@@ -444,7 +553,7 @@ case "$1" in
         help|--help) shift;             cmd_usage "$@" ;;
         version|--version) shift;       cmd_version "$@" ;;
         show|ls|list) shift;            cmd_show "$@" ;;
-        view) shift;            	    cmd_view "$@" ;;
+        view|cat) shift;           	    cmd_view "$@" ;;
         find|search) shift;             cmd_find "$@" ;;
         grep) shift;                    cmd_grep "$@" ;;
         insert|add) shift;              cmd_insert "$@" ;;
