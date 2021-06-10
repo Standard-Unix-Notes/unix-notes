@@ -101,7 +101,6 @@ validate_gpg_keyid () {
 
     # test key character length = the last 16 (short) or the full 40 (long) are acceptable
     case ${#testkey} in
-
         16|40) 
             shortkey="`echo ${testkey} | tail -c 17`"
             if [ "`grep ${shortkey} ${keyids}`" = "0" ] ; then
@@ -514,7 +513,7 @@ cmd_newkey () {
 #                       #
 #########################
 
-PROGRAM="${0##*/}"
+PROGRAM="`basename ${0##*/}`"
 COMMAND="$1"
 
 case "$1" in
