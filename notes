@@ -18,6 +18,7 @@ GPGKEY=''
 GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
 SHREDCMD="rm"
+EDITOR="${EDITOR:-vi}"
 #SHREDCMD="shred"
 
 #
@@ -389,7 +390,7 @@ cmd_find () {
 
 cmd_insert () {
 	theoptions="$@"
-    myoptions="${theoptions// /_}"
+    myoptions="`echo ${theoptions} | tr ' ' '_'`"
 	case $PROGRAM in 
 		"notes") echo my options = ${myoptions} ; note_add $myoptions;;
 		"notebook") notebook_add $myoptions;;
