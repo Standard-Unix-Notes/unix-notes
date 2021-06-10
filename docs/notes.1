@@ -1,0 +1,297 @@
+.\" Manpage for Standard (?) Unix Notes
+.\" aka notes
+.\" See https://github.com/Standard-Unix-Notes/unix-notes
+.TH notes 1 "10 June 2021" "1.0" "Notes man page"
+.SH NAME
+Notes \-  GPG encrypted notes
+.SH SYNOPSIS
+.B
+notes
+[
+.IB
+command
+] [
+.I
+filename
+|
+.I \fInote_title\fP
+]
+
+.SH CONFIGURATION
+
+Manual configuration for the GPG key can be added using the phrase \fBKEY <email 
+address>\fP in the file \fB<notesdir>/config\fP.
+
+.SH DESCRIPTION 
+
+The Standard(?) Unix Notes notebook system is a GPG encrypted 'notebook' where each note 
+is individually encrypted into a notebook folder. It can handle multiple notebook folders 
+and can decrypt/re-encrypt for a new GPG key easily. The program is based upon 
+Password-Store the standard Unix password manager of which it borrows some code.
+
+If no command is given then Notes simply runs 'notes help' which outputs a list of 
+commands to STDOUT.
+
+Before using the system the user should create a GPG key if they haven't got one. Notes 
+will automatically search the user's GPG keyring and default to using the first private 
+key it finds (Note that the code currently isn't clever enough to distinguish if that key 
+is expired). If this is the wrong key you can change it in two ways:
+
+1. Simply edit the \fB~/.notes/config\fP file and replace the KEY parameter with the correct 
+email address. This will only work if you only have one key with that email address. If 
+you have two keys with that email address, (for example if one has expired but you have 
+kept it for decrypting old files) then you should replace the email address with the 
+KEYID of the private key you wish to use.
+
+2. If you know the GPG keyid and there are no duplicate email address issues with other 
+keys, then run 'notes newkey <keyid>'. Notes will replace the keyid automatically in the 
+config file.
+
+.SH COMMANDS 
+
+The notes program takes a set of commands which allows the user to manipulate the 
+encrypted notes in the system.
+.RE
+
+.SY init
+.YS
+Setup your notes system. This command takes no arguments and creates the notes directory 
+(\fB~/.notes\fP). It then creates the default notebook called 'notes' and sets the 
+DEFAULT and USE links pointing to the default notebook (notes).
+
+The program then examines your GPG keyring for private keys. It then adds the first GPG 
+KeyID to your config file for later use. With each command issued the program will use 
+this key for any encryption needed.
+
+.SY config
+.YS
+Displays the config file
+.B
+~/.notes/config
+to the terminal. This is a quick way of determining which GPG KeyID is in use.
+
+.SY help
+.YS
+Displays a quick help page displaying available commands.
+
+.SY version
+.YS
+Displays the program version number.
+
+.SY "show|ls|list"
+.YS
+List notes in current notebook. All note files found in the directory pointed to by 
+~/.notes/USE are displayed to the STDOUT.
+
+.SY "newkey KeyID"
+.YS
+.OP KeyID 
+The GPG KeyID can be in one of two formats. The standard 40 character full KeyID, or the 
+shorter 16 character version (this is the last 16 characters of the full KeyID).
+.PP
+Change GPG key encryption for all notebooks. The newkey command takes either a 
+full 40 character GPG KeyID or the shortened 16 character KeyID 
+(the last 16 characters of the full KeyID as shown by format=short). 
+The newkey command will then find all the notes from all notebooks, decrypt the note 
+before re-encrypting the note with the new KeyID. 
+
+
+.SY "find|search  search term"
+.YS
+.OP "search term"
+The search term is passed to grep inside the program for processing the search. 
+THIS OPTION IS NOT CURRENTLY IMPLEMENTED. 
+See ROADMAP for details.
+
+.SY "insert|add  note title"
+.YS
+Add a note to the system. The program takes the note title and replaces any spaces within 
+it with underscores. It then creates a temporary file in the CURRENT notebook and calls 
+your editor ($EDITOR) to edit the file. After editing the file to enter your notes the 
+program calls GPG to encrypt the file (to a file named 
+.B
+note-title.gpg
+). Finally the temporary file is scrubbed and deleted.
+
+.OP "note title"
+If the note title contains spaces they will be replaced with underscores in the final note file.
+
+.SY "view|cat  note title"
+.YS
+View a note. Notes decrypts the selected notes to the STDOUT (so no temporary files are 
+created exposing the security of your notes).
+
+.SY "import  file-path"
+.YS
+Import a text file as a note into the system, encrypting the note as it is imported.
+
+.SY "rename|mv  note title"
+.YS
+Rename a note. The program will prompt for a new note title to be entered. Original 
+encrypted note is NOT decrypted in the process. Any spaces entered in the new title will be replaced by underscores.
+
+.SY "copy|cp  note title"
+.YS
+Duplicate a note in the SAME directory. The program will prompt for a new note title to 
+be entered before copying the note to a new note title.
+As of version 1.0, this command does not copy between notebooks and the user is advised to 
+manually move  the file into the desired notebook directory.
+
+.SY "delete|rm  note title"
+.YS
+Delete a note. The note specified on the command line will be deleted.
+
+.SY "edit|ed  note title"
+.YS
+The program will take the note title specified on the command line and decrypt the note. 
+After calling the user's default editor ($EDITOR) it will encrypt the file using the 
+user's currently configured encryption KeyID. The temporary file used to edit will be 
+then securely scrubbed.
+
+.SH NOTEBOOKS
+
+The program comes with a sister program called \fBnotebook\fP that supports the managing 
+of notebooks (sub-directories of the main ~/.notes directory containing notes). See 
+\fBnotebook(1)\fP for details.
+
+.SH OPTIONS 
+
+Most commands take either a \fBnote title\fP, \fBfile-path\fP or a \fBGPG KeyID\fP. See 
+the individual COMMANDS for details on which options each command takes. The notes and 
+notebook commands strip spaces from note filenames and notebook directory names. It 
+replaces them with underscores. This behaviour occurs even if the user encloses the 
+filename with spaces in quotes because there are other issues that occur when handling 
+notes with spaces in particularly when replacing the encryption key.
+
+.SH EXIT STATUS
+
+Upon an error notes returns a non zero value upon aborting.
+
+.SH ENVIRONMENT
+
+\fB$EDITOR\fP
+Notes uses the shell variable to determine which editor the user prefers. If unset it 
+will default to 'nano'.
+
+By default notes creates it's notes directory in ~/.notes for the user. This can be 
+changed by modifying the shell script.
+
+.SH FILES
+
+The following files are found in the notes directory (~/.notes by default):
+
+.TP 
+\fBconfig\fP
+The configuration file for notes. Currently the only option is for specifying the key to 
+be used for encryption (KEY <email address>).
+
+.TP
+\fBDEFAULT\fP
+This link points to the default notebook (notes). This can be reassigned by using the 
+command 'notebook default <notebook name>'.
+
+.TP
+\fBUSE \fP
+This link points to the currently used notebook. It can be changed by issuing the command 
+'notebook use <notebook name>'. You can also set this to the default notebook by omitting 
+the notebook name parameter.
+
+.SH CONFORMANCE
+
+The script is written to use the Bourne Shell and avoid all Bash-isms (which would have 
+made the coding a little easier in some cases. Although Bash is installed by default on 
+most Linuxes, it is not installed by default on a number of other Unix-like operating 
+systems including FreeBSD.
+
+This is deliberate as all Unix and Linux systems should have a POSIX compliant shell (or 
+at least be backwards compatible to one). Hence the application was written for the 
+lowest common denominator.
+
+.SH NOTES
+
+There is currently no sync built into this application. However, the user can simply run 
+a rsync or scp in order to synchronise between two machines running Notes.
+
+.SH BUGS
+
+See https://github.com/Standard-Unix-Notes/unix-notes/issues for details on any Bugs and 
+Issues with the project.
+
+Please report any bugs on the GitHub page.
+
+.SH EXAMPLES
+
+.EX
+Show help:
+\fB$ notes\fP 
+
+Initialises notes directory (~/.notes):
+\fB$ notes init\fP
+
+Add a note called 'mynote' in the current notebook encrypting it with your GPG key:
+\fB$ notes add mynote\fP
+
+Add note called another_note in the current notebook encrypting it with your GPG key:
+\fB$ notes add another note\fP
+
+Rename 'mynote' to 'installation_instructions':
+\fB$ notes rename mynote\fP
+Please enter new name for note: installation instructions 
+/home/ian/.notes/USE/mynote.gpg exists .... moving
+
+List notes in current notebooks: 
+\fB$ notes list\fP
+another_note.gpg		installation_instructions.gpg
+demo.gpg
+
+Import a text file into Notes:
+\fB$ notes import ~/Projects/evil_master_plan\fP
+
+Edit a note (.gpg extension not necessary) in your current editor ($EDITOR):
+\fB$ notes edit evil_master_plan\fP
+
+Delete Note:
+\fB$ notes rm another_note.gpg\fP
+
+View note:
+\fB$ notes view evil_master_plan\fP
+gpg: encrypted with 2048-bit RSA key, ID 8E34F9151120CF01, created 2020-11-27
+      "bondVillan64@gmail.com <bondVillan64@gmail.com>"
+EVIL MASTER PLAN
+
+1. Take over world
+2. Stroke white cat
+.EE
+
+.SH SEE ALSO
+
+.IP \fBnotebook(1)\fP The companion command for managing notebooks for notes.
+
+
+.SH PROJECT PAGE
+.UR https://github.com/Standard-Unix-Notes/unix-notes
+GitHub Project page
+.UE
+
+.SS ROADMAP
+.UR https://github.com/Standard-Unix-Notes/unix-notes/raw/ROADMAP
+Project GitHub
+.UE
+
+.SS CONTRIBUTING 
+
+Contributions are welcome, see CONTRIBUTING in the tarball or in the 
+.UR https://github.com/Standard-Unix-Notes/unix-notes/raw/CONTRIBUTING
+GitHub repository
+.UE
+
+.SS LICENCE
+
+The Standard(?) Unix Notes program is licensed under the BSD 3-clause licence.
+
+.SS AUTHOR
+
+Ian Stanley can be contacted via project 
+.UR https://github.com/iandstanley
+GitHub page
+.UE
