@@ -18,7 +18,7 @@ GPGKEY=''
 GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
 SHREDCMD="rm"
-EDITOR="${EDITOR:-vi}"
+EDITOR="${EDITOR:-nano}"
 PAGER="${PAGER:-more}"
 #SHREDCMD="shred"
 
@@ -233,14 +233,14 @@ note_rename () {
     newname="`echo ${newname} | tr ' ' '_'`"
 
 	case $notefile in
-		*gpg) skip;;
-		*) notefile="${notefile}.gpg"
+		*gpg)   skip;;
+		*)      notefile="${notefile}.gpg"
 	esac 
 
 	newnotefile="${USE_POINTER}/${newname}"
 	case $newnotefile in
-		*gpg) skip;;
-		*) newnotefile="${newnotefile}.gpg"
+		*gpg)   skip;;
+		*)      newnotefile="${newnotefile}.gpg"
 	esac 
 
 	case $MVCP in 
@@ -357,7 +357,7 @@ NOTES MANAGEMENT:
 	notes rename|mv  note_title		rename a note (will prompt for new name)
 	notes copy|cp    note_title		copy a note (will prompt for new name)
 	notes delete|rm  note_title		delete a note
-	notes edit|ed    note_title		edit a note
+	notes edit|ed    note_title		edit a note in default editor
 
 NOTEBOOK MANAGEMENT:
 	
@@ -387,7 +387,7 @@ cmd_view () {
 		exit 1
 	fi
 	case $PROGRAM in 
-		"notes") note_view $myoptions;;
+		"notes")    note_view $myoptions;;
 		"notebook") cmd_usage;;
 	esac
 }
@@ -395,7 +395,7 @@ cmd_view () {
 cmd_show () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") note_list $myoptions;;
+		"notes")    note_list $myoptions;;
 		"notebook") notebook_list $myoptions;;
 	esac
 }
