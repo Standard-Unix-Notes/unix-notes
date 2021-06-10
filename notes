@@ -4,7 +4,7 @@
 #
 # This is Unix Notes. An GPG encrypted notes system designed for privacy
 #
-# The idea came from 'pass' the standard unix password manager
+# The idea came from 'pass' the standard Unix password manager
 
 # VARIABLES
 VERSION=1.0
@@ -23,7 +23,7 @@ PAGER="${PAGER:-more}"
 #SHREDCMD="shred"
 
 #
-# initialize notes system
+# initialise notes system
 #
 
 cmd_init (){		# setup directories and GPG key  to be used
@@ -340,7 +340,7 @@ GPG encrypted notes system for BSD and Linux systems
 
 SYSTEM:
 
-	notes init          initialize notes system
+	notes init          initialise notes system
 	notes config        display config file
 	notes newkey        change GPG key 
 	notes help          show help
@@ -353,7 +353,7 @@ NOTES MANAGEMENT:
 	notes find|search               find notes   [YET TO BE IMPLEMENTED]
 	notes insert|add note_title     add a note
 	notes view|cat   note_title     view a note
-	notes import     filepath       import a text file as a note
+	notes import     file-path       import a text file as a note
 	notes rename|mv  note_title		rename a note (will prompt for new name)
 	notes copy|cp    note_title     copy a note (will prompt for new name)
 	notes delete|rm  note_title    	delete a note
