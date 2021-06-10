@@ -99,65 +99,32 @@ validate_gpg_keyid () {
 
     gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
 
-    echo testing key length
-    if [ "${#testkey}" != 16 ] ; then 
-        echo Key supplied $testkey is wrong length: length = ${#testkey}
-        echo Key length should be 16 characters
-        echo Valid keys are:
-        cat $keyids
-        rm $keyids
-        exit 1
-    fi
+    # test key character length = the last 16 (short) or the full 40 (long) are acceptable
+    case ${#testkey} in
 
-
-    echo valid keyids are ... 
-    cat $keyids
-    echo Testing $testkey
-
-    grep $testkey $keyids  > /dev/null
-    isvalidgpgkey="$?"
-    echo testing result = $isvalidgpgkey
-
-    if [ "$isvalidgpgkey" = "0" ] ; then
-        echo valid given 
-
-    else
-        echo Invalid GPG keyid \n\n
-
-        echo Valid GPG keys are 
-        cat $keyids
-        echo \n\n Type 'gpg -k <keyid> to find out more about key'
-        #rm $keyids
-        exit 1
-    fi
-
+        16|40) 
+            shortkey="`echo ${testkey} | tail -c 17`"
+            if [ "`grep ${shortkey} ${keyids}`" = "0" ] ; then
+                echo Invalid GPG keyid
+                cat $keyids
+                echo \n\n Type 'gpg -k <keyid> to find out more about key'
+                rm $keyids
+                exit 1
+            else 
+                echo Valid key $testkey
+            fi
+            ;;
+        *)  
+            echo Provided key is invalid: keys should be 16 or 40 characters
+            echo Valid keys are ...
+            cat $keyids
+            echo \n\n Type 'gpg -k <keyid> to find out more about key'
+            rm $keyids
+            exit 1;;
+    esac
 }
 
-recrypt_file () { ## not used
-    newkey = "$1"
-    target = "$2"
 
-    get_recipient 
-
-    echo decrypt from $KEY
-    echo filename = $target
-    echo new gpg key = $newkey
-
-}
-
-get_gpg_key_uids () {    # unused but logic may be used at further date
-    keyids="/tmp/keyids.$$"
-    gpguids="/tmp/uids.$$"
-
-    gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
-
-    echo keyids are
-    cat $keyids
-    echo Available keys 
-    cat $keyids | xargs -n 1 gpg -k | grep ^uid | sed 's/>$//; s/^.*<//'  > $gpguids
-    cat $gpguids | sort  |  nl
-
-}
 #
 # note functions
 #
@@ -530,13 +497,13 @@ cmd_newkey () {
         while read filen ; 
         do 
             echo $filen; 
-            gpg -o "${filen}" -d "${filen}.gpg" 
-            gpg -r ${mynewkey} -e "${filen}"  && ${SHREDCMD} "${filen}"
+            gpg -o "${filen}" --yes -d "${filen}.gpg" 
+            gpg -r ${mynewkey} --yes -e "${filen}"  && ${SHREDCMD} "${filen}"
             
         done
    
     # need to fix up config file now ...
-    NEWUSER="`gpg -k ${mynewkey} | grep uid |  head -1 | sed 's/>$//; s/^.*<//' `"
+    NEWUSER="`gpg -k ${mynewkey}  | grep uid |  head -1 | sed 's/>$//; s/^.*<//' `"
     sed -i s/^KEY.*$/KEY\\t${NEWUSER}/   ${CONFIGFILE}
 }
 
