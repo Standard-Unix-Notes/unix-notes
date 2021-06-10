@@ -158,10 +158,14 @@ note_import () {
 	notefile="`basename ${toimport}`"
     notefile="`echo ${notefile} | tr ' ' '_'`"
 
+    echo $toimport
+    echo $pathname
+    echo $notefile
+
 	get_recipient
 	
 	if [ -f "${toimport}" ] ; then 
-		$GPG -e -r $KEY $GPG_OPTS -o  "${USE_POINTER}/${notefile}.gpg" "${notefile}" 
+		$GPG -e -r $KEY $GPG_OPTS -o  "${USE_POINTER}/${notefile}.gpg" "${pathname}/${notefile}" 
 	fi
 }
 
@@ -336,6 +340,7 @@ GPG encrypted notes system for BSD and Linux systems
 SYSTEM:
 
 	notes init		    initialize notes system
+	notes config		display config file
 	notes newkey		change GPG key 
 	notes help		    show help
 	notes version		show version
@@ -368,6 +373,10 @@ ENDHELP
 
 cmd_version () {
 	echo "Version $VERSION"
+}
+
+cmd_config () {
+    cat $CONFIGFILE
 }
 
 cmd_view () {
@@ -524,6 +533,7 @@ COMMAND="$1"
 
 case "$1" in
         init) shift;                    cmd_init "$@" ;;
+        config) shift;                  cmd_config "$@" ;;
         default) shift;                 cmd_default "$@" ;;
         use) shift;                     cmd_use "$@" ;;
         newkey) shift;                  cmd_newkey "$@" ;;
