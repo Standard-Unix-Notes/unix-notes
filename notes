@@ -340,34 +340,34 @@ GPG encrypted notes system for BSD and Linux systems
 
 SYSTEM:
 
-	notes init		    initialize notes system
-	notes config		display config file
-	notes newkey		change GPG key 
-	notes help		    show help
-	notes version		show version
-	notes show|ls|list	list notes in current notebook
+	notes init          initialize notes system
+	notes config        display config file
+	notes newkey        change GPG key 
+	notes help          show help
+	notes version       show version
+	notes show|ls|list  list notes in current notebook
     notes newkey email  change GPG key 
 
 NOTES MANAGEMENT:
 
-	notes find|search 			    find notes   [YET TO BE IMPLEMENTED]
-	notes insert|add note_title		add a note
-	notes view|cat   note_title		view a note
-	notes import     file			import a text file as a note
+	notes find|search               find notes   [YET TO BE IMPLEMENTED]
+	notes insert|add note_title     add a note
+	notes view|cat   note_title     view a note
+	notes import     filepath       import a text file as a note
 	notes rename|mv  note_title		rename a note (will prompt for new name)
-	notes copy|cp    note_title		copy a note (will prompt for new name)
-	notes delete|rm  note_title		delete a note
-	notes edit|ed    note_title		edit a note in default editor
+	notes copy|cp    note_title     copy a note (will prompt for new name)
+	notes delete|rm  note_title    	delete a note
+	notes edit|ed    note_title     edit a note in default editor
 
 NOTEBOOK MANAGEMENT:
 	
-	notebook list|ls		        list notebooks
-	notebook default    notebook	change default notebook
-	notebook use	    notebook	use a notebook (no notebook: use default)
-	notebook add|insert notebook	add a notebook
-	notebook rename|mv  notebook	rename a notebook (will prompt for new name)
-	notebook copy|cp    notebook	copy a notebook (will prompt for new name)
-	notebook delete|rm  notebook	delete a notebook
+	notebook list|ls                list notebooks
+	notebook default    notebook    change default notebook
+	notebook use        notebook    use a notebook (no notebook: use default)
+	notebook add|insert notebook    add a notebook
+	notebook rename|mv  notebook    rename a notebook (will prompt for new name)
+	notebook copy|cp    notebook    copy a notebook (will prompt for new name)
+	notebook delete|rm  notebook    delete a notebook
 	
 ENDHELP
 }
