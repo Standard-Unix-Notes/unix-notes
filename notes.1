@@ -1,0 +1,68 @@
+.\" Manpage for Standard (?) Unix Notes
+.\" aka notes
+.\" See https://github.com/Standard-Unix-Notes/unix-notes
+.TH man 1 "10 June 2021" "1.0" "notes man page"
+.SH NAME
+notes \- maintain GPG encrypted notes
+.SH SYNOPSIS
+notes [command] [filename | note title] 
+ 
+.SH CONFIGURATION 
+Manual configuration for the GPG key can be added using the phrase
+    KEY <email address> 
+in the file <notesdir>/config
+.SH DESCRIPTION
+The Standard(?) Unix Notes notebook system is a GPG encrypted 'notebook' where each note is individually encrypted into a notebook folder. It can handle multiple notebook folders and can decrypt/re-encrypt for a new GPG key easily. The program is based upon Password-Store the standard Unix password manager of which it borrows some code.
+.SH COMMANDS
+The notes program takes a set of commands which allows the user to manipulate the encrypted notes in the system. 
+.SH COMMANDS
+ init          initialize notes system
+ newkey        change GPG key 
+ help          show help
+ version       show version
+ show|ls|list  list notes in current notebook
+ newkey email  change GPG key 
+
+ find|search               find notes   [YET TO BE IMPLEMENTED]
+ insert|add note_title     add a note
+ view|cat   note_title     view a note
+ import     file           import a text file as a note
+ rename|mv  note_title     rename a note (will prompt for new name)
+ copy|cp    note_title     copy a note (will prompt for new name)
+ delete|rm  note_title     delete a note
+ edit|ed    note_title     edit a note
+
+
+
+
+.SH OPTIONS            [Normally only in Sections 1, 8]
+Most commands take either a <note title>, filename or a GPG key ID. See the individual COMMANDS for details on which options each command takes. 
+The notes and notebook commands strip spaces from note filenames and notebook directory names. It replaces them with underscores. This behaviour occurs even if the user encloses the filename with spaces in quotes because there are other issues that occur when handling notes with spaces in - particularly when replacing the encryption key.
+.SH EXIT STATUS      
+Upon an error notes returns a non zero value upon aborting.
+.SH ENVIRONMENT
+$EDITOR     Notes uses the shell variable to determine which editor the user prefers. If unset it will default to 'vi'
+
+By default notes creates it's notes directory in ~/.notes for the user. This can be changed by midifying the shell script. 
+.SH FILES
+The following files are found in the notes directory (~/.notes by default):
+
+config      The configuration file for notes. Currently the only option is for specifying the key to be used for encryption (KEY <email address>)
+DEFAULT     This link points to the default notebook (notes). This can be reassigned by using the command 'notebook default <notebook name>'
+USE         This link points to the currently used notebook. It can be changed by issuing the command 'notebook use <notebook name>'. You can also set this to the default notebook by omitting the notebook name parameter.
+.SH VERSIONS           [Normally only in Sections 2, 3]
+
+.SH CONFORMING TO
+The script is written to use the Bourne Shell and avoid all Bash-isms (which would have made the coding a little easier in some cases. Although Bash is installed by default on most Linuxes, it is not installed by default on a number of other Unix-like operating systems including FreeBSD.
+
+This is deliberate as all Unix and Linux systems should have a POSIX compliant shell (or at least be backwards compatible to one). Hence the application was written for the lowest common denominator.
+.SH NOTES
+There is currently no sync built into this application. However, the user can simply run a rsync or scp in order to synchronize between two machines running Notes.
+.SH BUGS
+See https://github.com/Standard-Unix-Notes/unix-notes/issues for details on any Bugs and Issues with the project.
+
+Please report any bugs on the GitHub page.
+.SH EXAMPLES
+
+.SH SEE ALSO
+notebook    The companion command for managing notebooks for notes. See notebook(1) for details.

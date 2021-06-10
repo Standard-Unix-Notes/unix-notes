@@ -42,10 +42,10 @@ cmd_init (){		# setup directories and GPG key  to be used
 		echo Your default notebook $INITIAL_NOTEBOOK has been created you may now create notes
         # point to INITIAL_NOTEBOOK with DEFAULT_POINTER and USE_POINTER
 		if [ ! -f "$DEFAULT_POINTER" ] ; then
-			ln -s $INITIAL_NOTEBOOK $DEFAULT_POINTER 
+			ln -s "`basename $INITIAL_NOTEBOOK`" "$DEFAULT_POINTER" 
 		fi
 		if [ ! -f "$USE_POINTER" ] ; then
-			ln -s $INITIAL_NOTEBOOK $USE_POINTER 
+			ln -s "`basename $INITIAL_NOTEBOOK`" "$USE_POINTER" 
 		fi
 	fi
 }
@@ -68,7 +68,7 @@ create_config () {
 	echo You will need to edit the KEY parameter and set it to the email 
 	echo address of the key you wish to use
 
-	KEY="`gpg -K | grep uid | head -1 | sed 's/>$//; s/^.*<//'`"
+	KEY="`gpg -K  --with-colons | grep fpr | head -1 | tr -d 'fpr:::::::::' `"
 	echo "KEY	$KEY" > $CONFIGFILE
 
 	echo Default config written:
@@ -130,7 +130,8 @@ validate_gpg_keyid () {
 #
 
 note_add () {
-	notefile="$USE_POINTER/$@"
+    filen="$@"
+    notefile="${USE_POINTER}/`echo ${filen} | tr ' ' '_'`"
 	
 	if [ -f "$notefile.gpg" ] ; then
 		echo File exists ... cannot create
@@ -153,7 +154,9 @@ note_add () {
 
 note_import () {
 	toimport="$@"
+    pathname="`dirname ${toimport}`"
 	notefile="`basename ${toimport}`"
+    notefile="`echo ${notefile} | tr ' ' '_'`"
 
 	get_recipient
 	
@@ -177,6 +180,7 @@ note_view () {
 }
 
 note_edit () {
+    myoptions="`echo ${theoptions} | tr ' ' '_'`"
 	notefile="$USE_POINTER/$@"
 	decrypted="`echo ${notefile} | sed s/.gpg//`"
 	
@@ -221,7 +225,7 @@ note_rename () {
 	shift
 	notefile="$USE_POINTER/$@"
 	read -p "Please enter new name for note: "  newname
-    newname="${newname// /_}"
+    newname="`echo ${newname} | tr ' ' '_'`"
 
 	case $notefile in
 		*gpg) skip;;
@@ -255,7 +259,9 @@ note_rename () {
 #
 
 notebook_add () {
-	new_notebook="${NOTESDIR}/$@"
+    notebookname="$@"
+    new_notebook="${NOTESDIR}/`echo ${notebookname} | tr ' ' '_'`"
+
 	if [ ! -d "$new_notebook" ] ; then
 		mkdir "$new_notebook"
 		chmod 700 "$new_notebook"
@@ -272,7 +278,7 @@ notebook_delete () {
 		exit 1
 	else
 		echo Deleting files from $notebook
-		rm -i ${notebook}/*.gpg
+		rm -if ${notebook}/*.gpg
 		
 		if [ $? = 0 ] ; then 
 			rmdir "$notebook"
@@ -292,7 +298,7 @@ notebook_rename () {
 
 	notebook="$NOTESDIR/$@"
 	read -p "Please enter new name for note: "  newname
-    newname="${newname// /_}"
+    newname="`echo ${newname} | tr ' ' '_'`"
 	newnotebook="${NOTESDIR}/${newname}"
 
 	case $MVCP in 
@@ -389,19 +395,17 @@ cmd_find () {
 }
 
 cmd_insert () {
-	theoptions="$@"
-    myoptions="`echo ${theoptions} | tr ' ' '_'`"
+	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note_add $myoptions;;
+		"notes")    note_add $myoptions;;
 		"notebook") notebook_add $myoptions;;
 	esac
 }
 
 cmd_import () {
-	theoptions="$@"
-    myoptions="${theoptions// /_}"
+	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note_import $myoptions;;
+		"notes")    note_import $myoptions;;
 		"notebook") cmd_usage;;
 	esac
 }
@@ -413,7 +417,7 @@ cmd_generate () {
 cmd_delete () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note_delete $myoptions;;
+		"notes")    note_delete $myoptions;;
 		"notebook") notebook_delete $myoptions;;
 	esac
 }
@@ -421,17 +425,16 @@ cmd_delete () {
 cmd_edit () {
 	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note_edit $myoptions;;
-		"notebook") notebook_edit $myoptions;;
+		"notes")    note_edit $myoptions;;
+		"notebook") notebook_edit ${myoptions};;
 	esac
 }
 
 cmd_copy_move () {
-	theoptions="$@"
-    myoptions="${theoptions// /_}"
+	myoptions="$@"
 	case $PROGRAM in 
-		"notes") echo my options = ${myoptions} ; note_rename $myoptions;;
-		"notebook") notebook_rename $myoptions;;
+		"notes")    note_rename $myoptions;;
+		"notebook") notebook_rename ${myoptions};;
 	esac
 }
 
@@ -444,11 +447,8 @@ cmd_git () {
 }
 
 cmd_default () {
-	echo set default notebook
     nb="$@"
     notebook="$NOTESDIR/$nb"
-    echo nb = $nb
-    echo notebook = $notebook
 
     if [ "$nb" = "" ]  ;then
         echo Default notebook = "`readlink -f $DEFAULT_POINTER`"
@@ -470,10 +470,9 @@ cmd_use () {
     if [ "$nb" = "" ]  ;then
         defaultnbval="`readlink -f $DEFAULT_POINTER`"
         defaultnb="`basename $DEFAULT_POINTER`"
-        echo no notebook specified use default
+        echo no notebook specified using default notebook
         unlink "$USE_POINTER"
         ln -s "`basename $defaultnbval`" "$USE_POINTER"
-        #ln -s "`$defaultnbval`" "$USE_POINTER"
         exit 0 
     fi
     if [ -d "$notebook" ] ; then
@@ -487,6 +486,13 @@ cmd_use () {
 
 cmd_newkey () {
     mynewkey="$1"
+
+    if [ "$mynewkey" = "" ]; then
+        echo No new key supplied
+        echo There are the following private keys on your keyring
+        gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5
+        exit 1
+    fi
 
 	get_recipient
     get_gpg_keyid   $mynewkey
@@ -502,9 +508,8 @@ cmd_newkey () {
             
         done
    
-    # need to fix up config file now ...
-    NEWUSER="`gpg -k ${mynewkey}  | grep uid |  head -1 | sed 's/>$//; s/^.*<//' `"
-    sed -i s/^KEY.*$/KEY\\t${NEWUSER}/   ${CONFIGFILE}
+    # replace key in config file
+    sed -i s/^KEY.*$/KEY\\t${mynewkey}/   ${CONFIGFILE}
 }
 
 
