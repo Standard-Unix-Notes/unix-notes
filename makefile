@@ -57,7 +57,7 @@ reinstall:	uninstall install
 
 ## make tarball:                 Package up into tarball
 tarball:
-	git archive --format tar v$(VER) -o $(TARBALL)
+	git archive v$(VER) -o $(TARBALL)
 	gzip $(TARBALL)
 	sha256 $(GZTARBALL) | tee $(SHATXT)
 	mv $(GZTARBALL)  $(TARBALL-LOCATION)
