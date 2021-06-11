@@ -1,4 +1,11 @@
-## make help:			Display help text
+VER=1.0
+TARBALL-LOCATION:=pkgs/tarball
+PKGNAME:=unix-notes-$(VER)
+TARBALL=$(PKGNAME)-tar
+GZTARBALL=$(TARBALL).gz
+SHATXT=$(PKGNAME)-sha256.txt
+
+## make help:                    Display help text
 help:
 	@echo ""
 	@echo "Standard(?) Unix Notes"
@@ -6,9 +13,17 @@ help:
 	@echo "GPG encrypted Notes system"
 	@echo ""
 	@sed -n s/^##//p makefile
-	@echo ""
 
-## make install:			install the Unix Notes application
+## make var:                     Show makefile variables
+var:
+	@echo Version = $(VER)
+	@echo Tarball Location = $(TARBALL-LOCATION)
+	@echo Package Name = $(PKGNAME)
+	@echo Tarball Name = $(TARBALL)
+	@echo Gzipped Tarball = $(GZTARBALL)	
+	@echo SHA text file = $(SHATXT)
+
+## make install:                 Install the Unix Notes application
 install: manpages install_files
 
 install_files:
@@ -28,7 +43,7 @@ clean:
 	-rm tmp/notes.1.gz
 	-rm tmp/notebook.1.gz
 
-## make uninstall:		uninstall the application
+## make uninstall:               Uninstall the application
 uninstall:
 	@echo uninstall application
 	-sudo rm -f /usr/share/man/man1/notes.1.gz
@@ -36,6 +51,14 @@ uninstall:
 	-sudo rm -f /usr/local/bin/notes
 	-sudo rm -f /usr/local/bin/notebook
 
-## make reinstall:		reinstall the application
+## make reinstall:               Reinstall the application
 reinstall:	uninstall install
 	@echo reinstall application
+
+## make tarball:                 Package up into tarball
+tarball:
+	git archive --format tar v$(VER) -o $(TARBALL)
+	gzip $(TARBALL)
+	sha256 $(GZTARBALL) | tee $(SHATXT)
+	mv $(GZTARBALL)  $(TARBALL-LOCATION)
+	mv $(SHATXT)  $(TARBALL-LOCATION)
