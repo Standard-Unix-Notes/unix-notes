@@ -17,3 +17,5 @@ FUTURE FEATURES
 	- multiuser encryption
 	- different gpg keys per notebook
 	- git integration
+	- bash/zsh completion
+
