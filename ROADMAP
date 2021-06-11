@@ -10,6 +10,8 @@
 	- add/delete/rename notebooks
 	- re-encrypt with new GPG key
 
+IN NEXT RELEASE (IMPLEMENTED)
+	- packaged as a tarball with SHA256
 
 FUTURE FEATURES
 	- dedicated diary/journal function
@@ -18,4 +20,7 @@ FUTURE FEATURES
 	- different gpg keys per notebook
 	- git integration
 	- bash/zsh completion
+	- Debian .DEB packaging
+	- FreeBSD .PKG packaging
+	- FreeBSD ports configuration
 
