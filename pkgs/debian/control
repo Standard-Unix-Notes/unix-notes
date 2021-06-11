@@ -1,0 +1,17 @@
+Package: unix-notes
+Version: 1.0
+Architecture: all
+Priority: optional
+Depends: gpg
+Maintainer: Ian Stanley
+Installed-Size: 20
+Homepage: https://github.com/Standard-Unix-Notes/unix-notes
+Bugs: https://github.com/Standard-Unix-Notes/unix-notes/issues
+Description: GPG encrypted notes and multi-notebook tools
+ Notes should be easy to use and secure. We can manually encrypt a 
+ notefile quite easily with GnuPG and that is fine for a few files. But 
+ eventually we all collect many note files. Some notes are related to 
+ others and we decide to reorganize them by placing them in directories. 
+ All encryption is relatively transparent to the user. All notes and 
+ notebooks can be managed with standard Unix/Linux tools if the user 
+ desires.
