@@ -12,6 +12,9 @@
 
 IN NEXT RELEASE (IMPLEMENTED)
 	- packaged as a tarball with SHA256
+	- Debian .DEB packaging
+	- Added a 'tree' subcommand for paging through the notes directory
+	- $NOTESDIR env support
 
 FUTURE FEATURES
 	- dedicated diary/journal function
@@ -20,7 +23,6 @@ FUTURE FEATURES
 	- different gpg keys per notebook
 	- git integration
 	- bash/zsh completion
-	- Debian .DEB packaging
 	- FreeBSD .PKG packaging
 	- FreeBSD ports configuration
-
+	- XDG environment support
