@@ -380,6 +380,10 @@ cmd_config () {
     cat $CONFIGFILE
 }
 
+cmd_tree () {
+    tree  ${NOTESDIR} | ${PAGER}
+}
+
 cmd_view () {
 	myoptions="$@"
 	if [ "$1" = "" ]; then
@@ -560,7 +564,7 @@ EOF
 
 #########################
 #                      	#
-#	MAIN PROGRAM        #
+#   MAIN PROGRAM        #
 #                       #
 #########################
 
@@ -570,6 +574,7 @@ COMMAND="$1"
 case "$1" in
         init) shift;                    cmd_init "$@" ;;
         config) shift;                  cmd_config "$@" ;;
+        tree) shift;                  	cmd_tree ;;
         licence|license) shift;         cmd_licence "$@" ;;
         default) shift;                 cmd_default "$@" ;;
         use) shift;                     cmd_use "$@" ;;
@@ -577,7 +582,7 @@ case "$1" in
         help|--help) shift;             cmd_usage "$@" ;;
         version|--version) shift;       cmd_version "$@" ;;
         show|ls|list) shift;            cmd_show "$@" ;;
-        view|cat) shift;           	    cmd_view "$@" ;;
+        view|cat) shift;        	cmd_view "$@" ;;
         find|search) shift;             cmd_find "$@" ;;
         grep) shift;                    cmd_grep "$@" ;;
         insert|add) shift;              cmd_insert "$@" ;;
