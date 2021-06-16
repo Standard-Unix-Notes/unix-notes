@@ -10,10 +10,12 @@
 VERSION=1.0
 #NOTES_UMASK='077'
 # Handle $XDG_DATA_DIR -or- NOTESDIR being set in environment
-if [ -z "$XDG_DATA_DIR" ] ; then
-	NOTESDIR="${NOTESDIR:-${HOME}/.notes}"
-else
+if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then
+	# only use $XDG_DATA_DIR if NOTESDIR not set
 	NOTESDIR="${XDG_DATA_DIR}/.notes"
+else
+	# use NOTESDIR if set else default to ~/.notes
+	NOTESDIR="${NOTESDIR:-${HOME}/.notes}"
 fi
 CONFIGFILE="${NOTESDIR}/config"
 INITIAL_NOTEBOOK="${NOTESDIR}/notes"
@@ -63,10 +65,10 @@ create_config () {
 	echo You have the following private keys on your keyring
 	gpg -K
 
-    if [ "`gpg -K | wc -l`" = "0" ] ; then 
-        echo No Private keys in keyring ... aborting
-        exit 1
-    fi 
+	if [ "`gpg -K | wc -l`" = "0" ] ; then 
+		echo No Private keys in keyring ... aborting
+		exit 1
+	fi 
 
 	echo By DEFAULT we will use the first key found as the key for encrypting
 	echo If this is NOT what is required please edit $NOTESDIR/config to
@@ -76,8 +78,6 @@ create_config () {
 
 	KEY="`gpg -K  --with-colons | grep fpr | head -1 | tr -d 'fpr:::::::::' `"
 	echo "KEY	$KEY" > $CONFIGFILE
-
-	echo "NOTESDIR	$NOTESDIR" >> $CONFIGFILE
 
 	echo Default config written:
 	cat  $CONFIGFILE
@@ -180,9 +180,9 @@ note_view () {
 	get_recipient
 	
 	if [ -f "${notefile}" ]; then 
-		gpg -d "${notefile}" | ${PAGER:-more} 
+		gpg -d "${notefile}" 
 	elif [ -f "${notefile}.gpg" ]; then 
-		gpg -d "${notefile}.gpg" | ${PAGER:-more}
+		gpg -d "${notefile}.gpg" 
 	else 
 		echo Note file does not exist
 	fi
@@ -214,7 +214,7 @@ note_edit () {
 }
 
 note_list () {
-	ls "${USE_POINTER}" | column | more 
+	ls "${USE_POINTER}" | column 
 }
 
 note_delete () {
@@ -384,7 +384,18 @@ cmd_version () {
 }
 
 cmd_config () {
-    cat $CONFIGFILE
+	echo The 'config' file contains:
+	echo ""
+	echo -----------------------------------------
+	echo ""
+	cat $CONFIGFILE
+	echo ""
+	echo -----------------------------------------
+	
+	echo ""
+	echo The DEFAULT notebook is $DEFAULT_POINTER
+	echo The USE notebook is $USE_POINTER
+	
 }
 
 cmd_tree () {

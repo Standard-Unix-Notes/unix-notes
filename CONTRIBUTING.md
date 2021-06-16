@@ -49,5 +49,3 @@ considered by the author for inclusion. This list is NOT exhaustive
 and contributors should feel free to propose and code for additional 
 features not on the ROADMAP.
 
--
-ian
