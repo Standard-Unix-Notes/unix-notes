@@ -1,8 +1,10 @@
 STANDARD (?) UNIX NOTES
 
 x.y	SECOND RELEASE
+	- Fully expanded README.md giving base documentation
 	- Updated project documentation to markdown (excluding 
 	  man pages)
+	- makefiles now get $(VER) from GIT TAG
 	- undocumented 'tree' subcommand (runs tree $NOTESDIR) 
           used in debugging features
 
