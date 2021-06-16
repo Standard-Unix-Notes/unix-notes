@@ -9,7 +9,12 @@
 # VARIABLES
 VERSION=1.0
 #NOTES_UMASK='077'
-NOTESDIR="${NOTESDIR:-${HOME}/.notes}"
+# Handle $XDG_DATA_DIR -or- NOTESDIR being set in environment
+if [ -z "$XDG_DATA_DIR" ] ; then
+	NOTESDIR="${NOTESDIR:-${HOME}/.notes}"
+else
+	NOTESDIR="${XDG_DATA_DIR}/.notes"
+fi
 CONFIGFILE="${NOTESDIR}/config"
 INITIAL_NOTEBOOK="${NOTESDIR}/notes"
 DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
@@ -32,7 +37,7 @@ cmd_init (){		# setup directories and GPG key  to be used
 
 	if [ ! -d "$NOTESDIR" ]; then
 		echo Creating notes directory:  $NOTESDIR
-		mkdir $NOTESDIR
+		mkdir -p $NOTESDIR
 	fi
 
 	create_config
@@ -72,12 +77,14 @@ create_config () {
 	KEY="`gpg -K  --with-colons | grep fpr | head -1 | tr -d 'fpr:::::::::' `"
 	echo "KEY	$KEY" > $CONFIGFILE
 
+	echo "NOTESDIR	$NOTESDIR" >> $CONFIGFILE
+
 	echo Default config written:
 	cat  $CONFIGFILE
 }
 
 get_recipient () {
-	KEY=`grep KEY $CONFIGFILE| sed s/^KEY// | tr -d [:blank:]`
+	KEY=`grep KEY ${CONFIGFILE}| sed s/^KEY// | tr -d [:blank:]`
 }
 
 get_gpg_keyid () {
@@ -155,23 +162,20 @@ note_add () {
 
 note_import () {
 	toimport="$@"
-    pathname="`dirname ${toimport}`"
+	pathname="`dirname ${toimport}`"
 	notefile="`basename ${toimport}`"
-    notefile="`echo ${notefile} | tr ' ' '_'`"
-
-    echo $toimport
-    echo $pathname
-    echo $notefile
+	target="`echo  ${notefile} | tr ' ' '_'`"
 
 	get_recipient
-	
+
 	if [ -f "${toimport}" ] ; then 
-		$GPG -e -r $KEY $GPG_OPTS -o  "${USE_POINTER}/${notefile}.gpg" "${pathname}/${notefile}" 
+		$GPG -e -r $KEY $GPG_OPTS -o  "${USE_POINTER}/${target}.gpg" "${toimport}" 
 	fi
 }
 
 note_view () {
-	notefile="$USE_POINTER/$@"
+	notefile="`echo $@ | tr ' ' '_'`"
+	notefile="${USE_POINTER}/${notefile}"
 
 	get_recipient
 	
@@ -185,8 +189,8 @@ note_view () {
 }
 
 note_edit () {
-    myoptions="`echo ${theoptions} | tr ' ' '_'`"
-	notefile="$USE_POINTER/$@"
+	notefile="`echo $@ | tr ' ' '_'`"
+	notefile="${USE_POINTER}/${notefile}"
 	decrypted="`echo ${notefile} | sed s/.gpg//`"
 	
 	get_recipient 
@@ -214,7 +218,8 @@ note_list () {
 }
 
 note_delete () {
-	notefile="$USE_POINTER/$@"
+	notefile="`echo $@ | tr ' ' '_'`"
+	notefile="${USE_POINTER}/${notefile}"
 	
 	if [ -f "$notefile" ]; then 
 		rm -i "$notefile" 
@@ -228,9 +233,11 @@ note_delete () {
 note_rename () {
 	MVCP="$1"
 	shift
-	notefile="$USE_POINTER/$@"
+	
+	notefile="`echo $@ | tr ' ' '_'`"
+	notefile="${USE_POINTER}/${notefile}"
 	read -p "Please enter new name for note: "  newname
-    newname="`echo ${newname} | tr ' ' '_'`"
+	newname="`echo ${newname} | tr ' ' '_'`"
 
 	case $notefile in
 		*gpg)   skip;;
