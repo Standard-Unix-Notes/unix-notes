@@ -1,11 +1,12 @@
-VER=1.0
+VER="`git tag | tr -d 'v'`"
+MAKEFILELIST="makefile pkgs/debian/makefile"
 TARBALL-LOCATION:=pkgs/tarball
 PKGNAME:=unix-notes-$(VER)
 TARBALL=$(PKGNAME)-tar
 GZTARBALL=$(TARBALL).gz
 SHATXT=$(PKGNAME)-sha256.txt
 
-## make help:                    Display help text
+## make help                     Display help text
 help:
 	@echo ""
 	@echo "Standard(?) Unix Notes"
@@ -14,16 +15,16 @@ help:
 	@echo ""
 	@sed -n s/^##//p makefile
 
-## make var:                     Show makefile variables
+## make var                      Show makefile variables
 var:
-	@echo Version = $(VER)
+	@echo Latest Git tag (Version) = $(VER)
 	@echo Tarball Location = $(TARBALL-LOCATION)
 	@echo Package Name = $(PKGNAME)
 	@echo Tarball Name = $(TARBALL)
 	@echo Gzipped Tarball = $(GZTARBALL)	
 	@echo SHA text file = $(SHATXT)
 
-## make install:                 Install the Unix Notes application
+## make install                  Install the Unix Notes application
 install: manpages install_files
 
 install_files:
@@ -43,7 +44,7 @@ clean:
 	-rm tmp/notes.1.gz
 	-rm tmp/notebook.1.gz
 
-## make uninstall:               Uninstall the application
+## make uninstall                Uninstall the application
 uninstall:
 	@echo uninstall application
 	-sudo rm -f /usr/share/man/man1/notes.1.gz
@@ -51,11 +52,11 @@ uninstall:
 	-sudo rm -f /usr/local/bin/notes
 	-sudo rm -f /usr/local/bin/notebook
 
-## make reinstall:               Reinstall the application
+## make reinstall                Reinstall the application
 reinstall:	uninstall install
 	@echo reinstall application
 
-## make tarball:                 Package up into tarball
+## make tarball                  Package up into tarball
 tarball:
 	git archive v$(VER) -o $(TARBALL)
 	gzip $(TARBALL)

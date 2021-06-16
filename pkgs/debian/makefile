@@ -1,6 +1,6 @@
 
 PROGNAME=unix-notes
-VER=1.0
+VER="`git tag | tr -d 'v'`"
 ARCH=all
 PKGBUILDDIR=$(PROGNAME)_$(VER)_$(ARCH)
 BINDIR=usr/local/bin
