@@ -169,7 +169,7 @@ Any note names specified in either the command line OR when prompted
 the spaces replaced with underscores. So if you enter *notes add my new 
 note* you will create 'my_new_note'.  
 
-### Sub-command *add | insert*
+### Sub-command add | insert
 
 To add a note simply issue the command
 
@@ -182,7 +182,7 @@ open your default editor ($EDITOR) to edit a the file. After saving and
 exiting the note will be encrypted with GnuPG using the key specified 
 in the config file.
 
-### Sub-command *view | cat*
+### Sub-command view | cat
 
 To view a note you enter the command:
 
@@ -194,7 +194,7 @@ This will decrypt the note 'note title.gpg' in the current notebook
 (see 'USE' pointer) with the private key specified in the 'config' 
 file. GnuPG will output the decrypted note to the STDOUT.
 
-### Sub-command *edit|ed*
+### Sub-command edit|ed
 
 To edit an encrypted note simply issue the command:
 
@@ -208,7 +208,7 @@ saving or quitting, *notes* will then encrypt the note again replacing
 the previous version and then delete the temporary file.
 
 
-### Sub-command *delete | rm*
+### Sub-command delete | rm
 
 To delete a note simply issue the command: 
 
@@ -220,7 +220,7 @@ This will delete the encrypted note named 'note title.gpg' from the
 current notebook.
 
 
-### Sub-command *list | ls *
+### Sub-command list | ls 
 
 To list what notes you have in the current notebook (USE) simply issue 
 the command:  
@@ -229,7 +229,7 @@ the command:
 $ notes list 
 ```
 
-### Sub-command *import*
+### Sub-command import
 
 You can import files into your notebook:
 
@@ -267,10 +267,11 @@ STDIN of the viewer zathura with:
 $ notes view  my secret note  | zathura -
 ```
 
-However, you would not be able to edit the pdf file without exporting it to another file first.
+However, you would not be able to edit the pdf file without exporting 
+it to another file first.
 
 
-### Sub-command *copy | cp* 
+### Sub-command copy | cp 
 
 You can copy a note into another note file in the same notebook. Simply 
 issue the command: 
@@ -283,7 +284,7 @@ This will copy the note 'original_note_file.gpg' to another note file.
 The user will be prompted for the name of the new note file. The 
 original file is NOT decrypted in the process.
 
-### Sub-command *rename | mv*
+### Sub-command rename | mv
 
 You can rename a note into another note file in the same notebook. Simply 
 issue the command: 
@@ -318,7 +319,7 @@ prompted (for rename and copy operations) will be scanned for spaces
 and then the spaces replaced with underscores. So if you enter 
 *notebook add my new notebook* you will create 'my_new_notebook'.
 
-### Sub-command *default*
+### Sub-command default
 
 This command is used to set the DEFAULT notebook.
 
@@ -328,7 +329,7 @@ $ notes default work notebook
 
 This sets the DEFAULT notebook to 'work_notebook/' 
 
-### Sub-command *use*
+### Sub-command use
 
 The 'USE' pointer points to the notebook currently in use. You can 
 change this at any time by issuing the *notebook use* command:
@@ -349,12 +350,12 @@ and forth between your DEFAULT notebook and any number of current 'USE'
 notebooks.
 
 
-### Sub-command *list | ls*
+### Sub-command list | ls
 
 This will list all of the notebooks that you have created together with 
 the initial notebook *notes* created by *notes init*.
 
-### Sub-command *add | insert*
+### Sub-command add | insert
 
 You can have as many notebooks as you wish. To add a notebook simply 
 issue the command:
@@ -367,7 +368,7 @@ This command will create a new notebook 'work_notebook'. The current
 notebook will remain unchanged and you will need to issue the command 
 *notebook use  work notebook* to switch to this notebook.
 
-### Sub-command *rename | mv*
+### Sub-command rename | mv
 
 This sub-command is used to rename an existing notebook.
 
@@ -379,7 +380,7 @@ The notebook 'original_notebook_name.gpg' will be renamed. The user
 will be prompted to enter a new name for the notebook and the 
 containing directory (relating to the notebook name) is renamed.
 
-### Sub-command *copy | cp*
+### Sub-command copy | cp
 
 You may duplicate a notebook together with all the containing notes:
 
@@ -392,7 +393,7 @@ user will be prompted for a new notebook name. All notes within the
 original notebook will be copied to the new notebook without decrypting 
 the notes first.
 
-### Sub-command *delete | rm*
+### Sub-command delete | rm
 
 To delete a specific notebook:
 
