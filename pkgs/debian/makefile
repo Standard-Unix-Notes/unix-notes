@@ -12,11 +12,17 @@ DEBIAN=$(PKGBUILDDIR)/DEBIAN
 
 ## make help:                  Show help
 help:
+	@echo ""
+	@echo Debian .deb packager makefile
+	@echo ""
+	@echo Please ensure that you have tagged the Git repo with the version
+	@echo BEFORE you run 'make deb'
+	@echo ""
 	@sed -n s/^##//p makefile
 
 var:
 	@echo PROGNAME = $(PROGNAME)
-	@echo VER = $(VER)
+	@echo Git Tag (VER) = $(VER)
 	@echo ARCH = $(ARCH)
 	@echo PKGBUILDIR = $(PKGBUILDDIR)
 	@echo BINDIR = $(BINDIR)
@@ -44,7 +50,7 @@ prep:  clean
 	install control $(DEBIAN)
 	cd $(PKGBINDIR); ln -sf  notes notebook
 
-## make build:                 Build .DEB package
+## make build:                 Build .DEB package (VERSION calculated from GIT TAG)  
 build: prep
 	@echo building Debian package
 	dpkg-deb --build $(PKGBUILDDIR)

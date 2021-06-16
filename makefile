@@ -13,6 +13,8 @@ help:
 	@echo ""
 	@echo "GPG encrypted Notes system"
 	@echo ""
+	@echo Make now runs 'git tag' to work out the version for the tarball
+	@echo ""
 	@sed -n s/^##//p makefile
 
 ## make var                      Show makefile variables
