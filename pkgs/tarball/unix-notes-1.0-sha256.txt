@@ -1,0 +1,1 @@
+SHA256 (unix-notes-1.0-tar.gz) = 644182a09b6ab89c0a70aaaf772fdbbfaedc15e88be89e0a3b8d01e4a39b50d5
