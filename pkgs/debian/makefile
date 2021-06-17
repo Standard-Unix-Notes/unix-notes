@@ -1,8 +1,5 @@
-
-PROGNAME=unix-notes
-VER="`git tag | tr -d 'v'`"
-ARCH=all
-PKGBUILDDIR=$(PROGNAME)_$(VER)_$(ARCH)
+VER="`git tag | sort -rn | head -1 | tr -d 'v'`"
+PKGBUILDDIR=unix-notes_$(VER)_all
 BINDIR=usr/local/bin
 PKGBINDIR=$(PKGBUILDDIR)/$(BINDIR)
 MANPATH=usr/share/man/man1
@@ -21,9 +18,7 @@ help:
 	@sed -n s/^##//p makefile
 
 var:
-	@echo PROGNAME = $(PROGNAME)
 	@echo Git Tag (VER) = $(VER)
-	@echo ARCH = $(ARCH)
 	@echo PKGBUILDIR = $(PKGBUILDDIR)
 	@echo BINDIR = $(BINDIR)
 	@echo PKGBINDIR = $(PKGBINDIR)

@@ -1,6 +1,5 @@
-VER="`git tag | tr -d 'v'`"
-MAKEFILELIST="makefile pkgs/debian/makefile"
-TARBALL-LOCATION:=pkgs/tarball
+VER="`git tag | sort -rn | head -1 | tr -d 'v'`"
+TARBALLLOC:=pkgs/tarball
 PKGNAME:=unix-notes-$(VER)
 TARBALL=$(PKGNAME)-tar
 GZTARBALL=$(TARBALL).gz
@@ -19,8 +18,8 @@ help:
 
 ## make var                      Show makefile variables
 var:
-	@echo Latest Git tag (Version) = $(VER)
-	@echo Tarball Location = $(TARBALL-LOCATION)
+	@echo Latest Git tag {Version} = $(VER)
+	@echo Tarball Location = $(TARBALLLOC)
 	@echo Package Name = $(PKGNAME)
 	@echo Tarball Name = $(TARBALL)
 	@echo Gzipped Tarball = $(GZTARBALL)	
@@ -63,5 +62,5 @@ tarball:
 	git archive v$(VER) -o $(TARBALL)
 	gzip $(TARBALL)
 	sha256 $(GZTARBALL) | tee $(SHATXT)
-	mv $(GZTARBALL)  $(TARBALL-LOCATION)
-	mv $(SHATXT)  $(TARBALL-LOCATION)
+	mv $(GZTARBALL)  $(TARBALLLOC)
+	mv $(SHATXT)  $(TARBALLLOC)
