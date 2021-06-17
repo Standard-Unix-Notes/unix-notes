@@ -423,7 +423,12 @@ cmd_show () {
 }
 
 cmd_find () {
-	echo cmd_find
+	searchterm="$@"
+
+	for file in ${USE_POINTER}/*.gpg
+	do
+		gpg -d $file  2>/dev/null | grep -H --label ${file}   $searchterm 
+	done
 }
 
 cmd_insert () {

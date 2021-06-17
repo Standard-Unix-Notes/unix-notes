@@ -169,6 +169,46 @@ Any note names specified in either the command line OR when prompted
 the spaces replaced with underscores. So if you enter *notes add my new 
 note* you will create 'my_new_note'.  
 
+
+### Sub-command config
+
+Displays the 'config' file and also the DEFAULT and USE (current) 
+notebooks.
+
+
+### Sub-command newkey
+
+The *notes* application will prompt for a new GPG KEYID to use. You may 
+use either the full 40 character ID or the shorter 16 characters (the 
+last 16 characters of the full KEYID).
+
+After checking that the key is valid and that you have the private key 
+on your keyring the application will process EVERY note in ALL 
+notebooks.
+
+The 'config' file will also be updated.
+
+If you have your private key on a Yubikey then this will require the 
+entering of your PIN number (which is cached).  
+
+If you have enabled touch decryption protection then you will need to 
+touch your Yubikey. With older Yubikey with firmware prior to 5.2.3 
+this will mean you will need to touch the key for every file decrypted. 
+With older Yubikeys you may wish to turn off the requirement for 
+touchin if you have a lot of notes.
+
+```shell
+$ ykman openpgp touch enc off
+```
+
+For newer Yubikeys with firmware 5.2.3 or later you can set a cached 
+policy for touch.
+
+```shell
+$ ykman openpgp set-touch enc cached
+```
+
+
 ### Sub-command add | insert
 
 To add a note simply issue the command
@@ -182,6 +222,7 @@ open your default editor ($EDITOR) to edit a the file. After saving and
 exiting the note will be encrypted with GnuPG using the key specified 
 in the config file.
 
+
 ### Sub-command view | cat
 
 To view a note you enter the command:
@@ -193,6 +234,7 @@ $ notes view  note title
 This will decrypt the note 'note title.gpg' in the current notebook 
 (see 'USE' pointer) with the private key specified in the 'config' 
 file. GnuPG will output the decrypted note to the STDOUT.
+
 
 ### Sub-command edit|ed
 
@@ -284,6 +326,7 @@ This will copy the note 'original_note_file.gpg' to another note file.
 The user will be prompted for the name of the new note file. The 
 original file is NOT decrypted in the process.
 
+
 ### Sub-command rename | mv
 
 You can rename a note into another note file in the same notebook. Simply 
@@ -319,6 +362,7 @@ prompted (for rename and copy operations) will be scanned for spaces
 and then the spaces replaced with underscores. So if you enter 
 *notebook add my new notebook* you will create 'my_new_notebook'.
 
+
 ### Sub-command default
 
 This command is used to set the DEFAULT notebook.
@@ -328,6 +372,7 @@ $ notes default work notebook
 ```
 
 This sets the DEFAULT notebook to 'work_notebook/' 
+
 
 ### Sub-command use
 
@@ -355,6 +400,7 @@ notebooks.
 This will list all of the notebooks that you have created together with 
 the initial notebook *notes* created by *notes init*.
 
+
 ### Sub-command add | insert
 
 You can have as many notebooks as you wish. To add a notebook simply 
@@ -368,6 +414,7 @@ This command will create a new notebook 'work_notebook'. The current
 notebook will remain unchanged and you will need to issue the command 
 *notebook use  work notebook* to switch to this notebook.
 
+
 ### Sub-command rename | mv
 
 This sub-command is used to rename an existing notebook.
@@ -379,6 +426,7 @@ $ notebook rename  original notebook name
 The notebook 'original_notebook_name.gpg' will be renamed. The user 
 will be prompted to enter a new name for the notebook and the 
 containing directory (relating to the notebook name) is renamed.
+
 
 ### Sub-command copy | cp
 
@@ -392,6 +440,7 @@ This command will copy 'original_notebook.gpg' to a new notebook. The
 user will be prompted for a new notebook name. All notes within the 
 original notebook will be copied to the new notebook without decrypting 
 the notes first.
+
 
 ### Sub-command delete | rm
 
@@ -412,6 +461,7 @@ It is also planned to add the capability to use PIV cards (and
 therefore the PIV slots on the Yubikey) in a future release as this 
 will require some switching within the functions to support two 
 different commands for encryption and decryption.
+
 
 ## Yubikeys
 
@@ -449,6 +499,27 @@ command the PIN entry will happen once (default behaviour) and the
 program will pause and the Yubikey will flash for a touch to decrypt 
 each file. The flashing is the only indication that GnuPG is waiting 
 for the Yubikey.   
+
+
+#### Workaround for newer Yubikeys
+
+If you have a newer Yubikey with a firmware of 5.2.3 or higher you can 
+cache the button touch for 15 seconds.
+
+To bypass this annoyance you can run the following command:
+
+```shell
+$ ykman openpgp set-touch enc cached
+```
+
+This will set the touch policy to cache touches for 15 seconds which 
+should be enough time for most notebooks to be searched with only one 
+touch.
+
+Please note that you need YKMAN version 4 and above for this option to 
+be available. Those working on Debin 10 based systems (BUSTER) will 
+need to either get the repo from GitHub; install ykman from Debian 
+TESTING or upgrade to Debian 11 when it becomes available.
 
 
 ### Recommended Yubikey guides 
