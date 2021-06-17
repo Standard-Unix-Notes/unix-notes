@@ -20,17 +20,20 @@ filename
 .SH CONFIGURATION
 
 Manual configuration for the GPG key can be added using the phrase \fBKEY <email 
-address>\fP in the file \fB<notesdir>/config\fP.
+address>\fP in the file "<notesdir>/config" where "notesdir" is setup during the
+"init" command and defaults to "~/.notes" unless $XDG_DATA_DIR or $NOTESDIR is 
+set in the environment. NB $NOTESDIR will override ANY setting of $XDG_DATA_DIR 
+allowing the user to choose their own directory even if $XDG_DATA_DIR is set.
 
 .SH DESCRIPTION 
 
 The Standard(?) Unix Notes notebook system is a GPG encrypted 'notebook' where each note 
 is individually encrypted into a notebook folder. It can handle multiple notebook folders 
 and can decrypt/re-encrypt for a new GPG key easily. The program is based upon 
-Password-Store the standard Unix password manager of which it borrows some code.
+Password-Store the standard Unix password manager from which it borrows some code.
 
-If no command is given then Notes simply runs 'notes help' which outputs a list of 
-commands to STDOUT.
+If no command is supplied Notes simply runs 'notes help' that outputs a list of commands 
+to STDOUT.
 
 Before using the system the user should create a GPG key if they haven't got one. Notes 
 will automatically search the user's GPG keyring and default to using the first private 
@@ -44,23 +47,30 @@ kept it for decrypting old files) then you should replace the email address with
 KEYID of the private key you wish to use.
 
 2. If you know the GPG keyid and there are no duplicate email address issues with other 
-keys, then run 'notes newkey <keyid>'. Notes will replace the keyid automatically in the 
+keys, then run \fBnotes newkey <keyid>\fP. Notes will replace the keyid automatically in the 
 config file.
 
 .SH COMMANDS 
 
-The notes program takes a set of commands which allows the user to manipulate the 
+The notes program takes a set of commands that allows the user to manipulate the 
 encrypted notes in the system.
 .RE
 
-.SY init
-.YS
-Setup your notes system. This command takes no arguments and creates the notes directory 
-(\fB~/.notes\fP). It then creates the default notebook called 'notes' and sets the 
-DEFAULT and USE links pointing to the default notebook (notes).
+.SY init 
+.YS 
+Setup your notes system. This command takes no arguments and creates the 
+notes directory (\fB~/.notes\fP if not specified). If $XDG_DATA_DIR is 
+set in your environment then notes will createa subdirectory called 
+".notes" and store all of it's data there. You can override both 
+settings by specifying $NOTESDIR in your environment to point to a 
+directory of your choice. Notes will create it's config files and 
+notesbooks (directories) beneath this directory.
+
+It then creates the default notebook called \fBnotes\fP and sets the DEFAULT and USE 
+links pointing to the default notebook (notes).
 
 The program then examines your GPG keyring for private keys. It then adds the first GPG 
-KeyID to your config file for later use. With each command issued the program will use 
+KeyID to your "config" file for later use. With each command issued the program will use 
 this key for any encryption needed.
 
 .SY config
@@ -68,7 +78,7 @@ this key for any encryption needed.
 Displays the config file
 .B
 ~/.notes/config
-to the terminal. This is a quick way of determining which GPG KeyID is in use.
+to the terminal. This is a quick way of determining that GPG KeyID is in use.
 
 .SY help
 .YS
@@ -100,8 +110,8 @@ before re-encrypting the note with the new KeyID.
 .YS
 .OP "search term"
 The search term is passed to grep inside the program for processing the search. 
-THIS OPTION IS NOT CURRENTLY IMPLEMENTED. 
-See ROADMAP for details.
+Each note in every notebook is decrypted sequentially to STDOUT and passed 
+through grep to search for terms.
 
 .SY "insert|add  note title"
 .YS
@@ -112,6 +122,7 @@ program calls GPG to encrypt the file (to a file named
 .B
 note-title.gpg
 ). Finally the temporary file is scrubbed and deleted.
+
 
 .OP "note title"
 If the note title contains spaces they will be replaced with underscores in the final note file.
@@ -171,7 +182,7 @@ Upon an error notes returns a non zero value upon aborting.
 
 \fB$EDITOR\fP
 Notes uses the shell variable to determine which editor the user prefers. If unset it 
-will default to 'nano'.
+will default to \fBnano\fP.
 
 By default notes creates it's notes directory in ~/.notes for the user. This can be 
 changed by modifying the shell script.
@@ -188,12 +199,12 @@ be used for encryption (KEY <email address>).
 .TP
 \fBDEFAULT\fP
 This link points to the default notebook (notes). This can be reassigned by using the 
-command 'notebook default <notebook name>'.
+command "notebook default <notebook name>".
 
 .TP
 \fBUSE \fP
 This link points to the currently used notebook. It can be changed by issuing the command 
-'notebook use <notebook name>'. You can also set this to the default notebook by omitting 
+\fBnotebook use <notebook name>\fP. You can also set this to the default notebook by omitting 
 the notebook name parameter.
 
 .SH CONFORMANCE
@@ -228,13 +239,13 @@ Show help:
 Initialises notes directory (~/.notes):
 \fB$ notes init\fP
 
-Add a note called 'mynote' in the current notebook encrypting it with your GPG key:
+Add a note called "mynote" in the current notebook encrypting it with your GPG key:
 \fB$ notes add mynote\fP
 
 Add note called another_note in the current notebook encrypting it with your GPG key:
 \fB$ notes add another note\fP
 
-Rename 'mynote' to 'installation_instructions':
+Rename "mynote" to "installation_instructions":
 \fB$ notes rename mynote\fP
 Please enter new name for note: installation instructions 
 /home/ian/.notes/USE/mynote.gpg exists .... moving
@@ -262,6 +273,42 @@ EVIL MASTER PLAN
 1. Take over world
 2. Stroke white cat
 .EE
+
+.SH STANDARD(?) UNIX NOTES AND YUBIKEY
+
+Notes supports all hardware devices that GnuPG supports. This includes 
+the following Yubico devices:
+
+	- Yubikey 5 Series (including FIPS models)
+	- Yubikey 4 Series (including FIPS models)
+	- Yubikey NEO
+
+A good guide for using GnuPG with Yubikeys can be found at 
+.UR https://github.com/drduh/YubiKey-Guide
+https://github.com/drduh/YubiKey-Guide
+.UE
+
+.SY \fBPIN and Touch features of Yubikey\fP 
+.YS 
+Yubikeys allow you to require a PIN number or a Touch for encryption 
+actions.
+
+PIN entry can be cached for a short period allowing the following 
+actions to be completed without the need for reentry of the PIN.
+
+In addition later Yubikeys with the firmware 5.2.3 (or later) allow you 
+to cache the button touch functionality for 15 seconds. You can enable 
+this with the command \fB$ ykman openpgp set-touch enc cached\fP. This will 
+prevent the Yubikey from requiring a touch for every file in the 
+multi-file operations like "newkey" and "find".
+
+.SY \fBPIV card support\fP
+.YS
+Future releases hope to support PIV devices as well. But as they use an 
+application other than GnuPG to encrypt and decrypt notes, further 
+coding is needed for both the configuration and the cryptography. This 
+functionality has been added to the ROADMAP.
+
 
 .SH SEE ALSO
 
