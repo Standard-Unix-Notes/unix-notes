@@ -31,7 +31,7 @@ deb: clean prep build
 	@echo Done.
 ## make clean:                 Clean up after package build
 clean:
-	-rm -rf $(PKGBUILDDIR) $(PKGBUILDDIR).deb $(PKGBUILDDIR).deb.sha256.txt
+	-rm -rf $(PKGBUILDDIR) 
 
 ## make prep:                  Prepare environment for package build
 prep:  clean

@@ -64,3 +64,10 @@ tarball:
 	sha256 $(GZTARBALL) | tee $(SHATXT)
 	mv $(GZTARBALL)  $(TARBALLLOC)
 	mv $(SHATXT)  $(TARBALLLOC)
+
+## make debian                   Create .deb
+debian:
+	make -C ./pkgs/debian  deb
+	make -C ./pkgs/debian  clean
+
+
