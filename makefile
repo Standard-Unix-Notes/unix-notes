@@ -1,9 +1,9 @@
 VER="`git tag | sort -rn | head -1 | tr -d 'v'`"
 TARBALLLOC:=pkgs/tarball
 PKGNAME:=unix-notes-$(VER)
-TARBALL=$(PKGNAME)-tar
+TARBALL=$(PKGNAME).tar
 GZTARBALL=$(TARBALL).gz
-SHATXT=$(PKGNAME)-sha256.txt
+SHATXT=$(PKGNAME).sha256.txt
 
 ## make help                     Display help text
 help:
