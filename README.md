@@ -262,7 +262,6 @@ This command decrypts each file in turn to STDOUT and greps for
 "licence plate" in the output. 
 
 
-
 ### Sub-command delete | rm
 
 To delete a note simply issue the command: 

@@ -1,7 +1,10 @@
-STANDARD (?) UNIX NOTES
+#		     STANDARD(?) UNIX NOTES
+	
+#			RELEASE NOTES
 
-x.y	SECOND RELEASE
+1.5	SECOND RELEASE
 	- Fully expanded README.md giving base documentation
+	- Search functionality added
 	- Updated project documentation to markdown (excluding 
 	  man pages)
 	- makefiles now get $(VER) from GIT TAG

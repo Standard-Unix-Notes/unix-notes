@@ -17,7 +17,7 @@ Please add sufficient description to the comments of the pull request
 to describe the additional feature(s) added.
 
 For each feature added the documentation will need to be amended as 
-needed including the README.md file, the man pages in docs/* and where 
+needed including the README.md file, the man pages in docs/ and where 
 necessary the other documentation files in the root directory of the 
 repo.
 
@@ -25,7 +25,8 @@ repo.
 ## DOCUMENTATION PULL REQUESTS
 
 Please run the aspell(1) spelling checker and the diction(1) grammar 
-checker on any documentation changed.
+checker on any documentation changed and taking any appropriate advice 
+given:
 
 	$ aspell -c <filename>
 
@@ -49,3 +50,9 @@ considered by the author for inclusion. This list is NOT exhaustive
 and contributors should feel free to propose and code for additional 
 features not on the ROADMAP.
 
+You may propose features at the GitHub page by raising a feature 
+request issues:
+
+https://github.com/Standard-Unix-Notes/unix-notes/issues
+
+Upon agreement they will be added to the ROADMAP file.

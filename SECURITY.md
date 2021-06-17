@@ -6,6 +6,7 @@ We support the following versions of this application:
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 1.5     | :white_check_mark: |
 | 1.0     | :white_check_mark: |
 
 
