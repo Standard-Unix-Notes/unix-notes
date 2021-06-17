@@ -427,7 +427,7 @@ cmd_find () {
 
 	for file in ${USE_POINTER}/*.gpg
 	do
-		gpg -d $file  2>/dev/null | grep -H --label ${file}   $searchterm 
+		gpg -d $file  2>/dev/null | grep -H --label ${file}   "$searchterm" 
 	done
 }
 
