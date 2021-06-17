@@ -3,18 +3,25 @@
 				
 				ROADMAP
 
+1.5 EXPANDED FEATURES INCLUDING SEARCH
+    - Search through encrypted notes with grep (#19)
+    - Expanded documentation 
+	- Added undocumented 'tree' subcommand for paging through 
+      the notes directory (#20)
+	- Support for $NOTESDIR to override data store location (#16)
+    - Support for $XDG_DATA_DIR/.notes to store data (#15)
+    - Fixed bug with spaces in filenames (#2)
+
 1.0 INITIAL RELEASE
 	- GPG encrypted notes
 	- add/delete/rename notes
 	- multiple notebooks
 	- add/delete/rename notebooks
 	- re-encrypt with new GPG key
+	- packaged as a tarball with SHA256 (#14)
+    - packaged as a .deb (#11)
 
 IN NEXT RELEASE (IMPLEMENTED)
-	- packaged as a tarball with SHA256
-	- Debian .DEB packaging
-	- Added a 'tree' subcommand for paging through the notes directory
-	- $NOTESDIR env support
 
 FUTURE FEATURES
 	- dedicated diary/journal function
@@ -22,7 +29,11 @@ FUTURE FEATURES
 	- multiuser encryption
 	- different gpg keys per notebook
 	- git integration
-	- bash/zsh completion
+	- bash completion
+	- zsh completion
 	- FreeBSD .PKG packaging
 	- FreeBSD ports configuration
-	- XDG environment support
+    - shred functionality
+    - encrypted backup/restore
+    - PIV card support
+    - Issue #17 BUG - import truncates filename if spaces in filename
