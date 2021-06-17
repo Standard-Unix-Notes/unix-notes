@@ -250,6 +250,19 @@ saving or quitting, *notes* will then encrypt the note again replacing
 the previous version and then delete the temporary file.
 
 
+### Sub-command find
+
+You can search all notes using the find command:
+
+```shell
+$ notes find licence plate
+```
+
+This command decrypts each file in turn to STDOUT and greps for 
+"licence plate" in the output. 
+
+
+
 ### Sub-command delete | rm
 
 To delete a note simply issue the command: 
