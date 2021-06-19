@@ -13,7 +13,7 @@ We support the following versions of this application:
 ## Reporting a Vulnerability
 
 If a vulnerability is found please report this as an ISSUE in the 
-Issues tab. If you have a fix ro suggested amendment, please feel free 
+Issues tab. If you have a fix or suggested amendment, please feel free 
 to fork and create a pull-request.  
 
 

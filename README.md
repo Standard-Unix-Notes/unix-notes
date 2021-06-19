@@ -2,7 +2,7 @@
 
 ## Background
 I have tried a number of different note systems over the years, from 
-online notes to Vimwiki and OrgMode and even just plain old text files. 
+online notes to Vim-wiki and Org-Mode and even just plain old text files. 
 All have their benefits and issues.   
 
 More recently I have taken to GPG encrypting my notes in a process to 
@@ -23,7 +23,7 @@ I decided to take the *pass* shell script and gut it, rename the
 functions and implement a system to encrypt/decrypt notes.  
 
 I use Yubikeys for my encryption and so have ensured that this script 
-works with the Yubikey 5 NFC, Yubkey 4 and the Yubikey NEO.
+works with the Yubikey 5 NFC, Yubikey 4 and the Yubikey NEO.
 
 ## Features
  
@@ -195,7 +195,7 @@ If you have enabled touch decryption protection then you will need to
 touch your Yubikey. With older Yubikey with firmware prior to 5.2.3 
 this will mean you will need to touch the key for every file decrypted. 
 With older Yubikeys you may wish to turn off the requirement for 
-touchin if you have a lot of notes.
+touching if you have a lot of notes.
 
 ```shell
 $ ykman openpgp touch enc off
@@ -529,7 +529,7 @@ should be enough time for most notebooks to be searched with only one
 touch.
 
 Please note that you need YKMAN version 4 and above for this option to 
-be available. Those working on Debin 10 based systems (BUSTER) will 
+be available. Those working on Debian 10 based systems (BUSTER) will 
 need to either get the repo from GitHub; install ykman from Debian 
 TESTING or upgrade to Debian 11 when it becomes available.
 
@@ -552,7 +552,7 @@ command for the encryption and decryption.
 
 Currently the *notes* application at the initial release v1.0 only 
 supports GnuPG encryption. I hope to include PIV based encryption keys 
-in a future release by making the encryption and decryption code autodetect 
+in a future release by making the encryption and decryption code auto detect 
 from the 'config' file.
 
 Please let me know if you will find this useful.
