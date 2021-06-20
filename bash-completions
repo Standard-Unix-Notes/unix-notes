@@ -1,7 +1,11 @@
-#!/bin/bash
 # BASH COMPLETION SCRIPT FOR STANDARD_UNIX_NOTES  notes(1) notebook(1)
 # Original PASSWORD_STORE version Copyright (C) 2012 - 2014 Jason A. Donenfeld <Jason@zx2c4.com> and
 # Brian Mattern <rephorm@rephorm.com>. All Rights Reserved.
+
+# Installed into 
+# /usr/share/bash-completion/completions/notes
+# /usr/share/bash-completion/completions/notebook
+
 
 _notes_complete_entries () {
     if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then

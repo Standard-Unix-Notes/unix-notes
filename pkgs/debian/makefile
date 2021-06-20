@@ -6,6 +6,8 @@ MANPATH=usr/share/man/man1
 PKGMANDIR=$(PKGBUILDDIR)/$(MANPATH)
 PROGROOT=../..
 DEBIAN=$(PKGBUILDDIR)/DEBIAN
+BASHCOMPLETE="usr/share/bash-completion/completions"
+PKGBASHCOMPLETE=$(PKGBUILDDIR)/$(BASHCOMPLETE)
 
 ## make help:                  Show help
 help:
@@ -25,6 +27,7 @@ var:
 	@echo MANPATH = $(MANPATH)
 	@echo PKGMANDIR = $(PKGMANDIR)
 	@echo PROGROOT = $(PROGROOT)
+	@echo PKGBASHCOMPLETE = $(PKGBASHCOMPLETE)
 
 ## make build:                 Build .DEB package
 deb: clean prep build
@@ -39,9 +42,12 @@ prep:  clean
 	mkdir -p $(DEBIAN)
 	mkdir -p $(PKGBINDIR)
 	mkdir -p $(PKGMANDIR)
+	mkdir -p $(PKGBASHCOMPLETE)
 	sudo install -o root -m 755 $(PROGROOT)/notes $(PKGBINDIR)
 	sudo install -o root -m 644 $(PROGROOT)/docs/notes.1 $(PKGMANDIR)
 	sudo install -o root -m 644 $(PROGROOT)/docs/notebook.1 $(PKGMANDIR)
+	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/notes
+	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/notebook
 	install control $(DEBIAN)
 	cd $(PKGBINDIR); ln -sf  notes notebook
 

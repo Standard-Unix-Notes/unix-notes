@@ -32,6 +32,8 @@ install_files:
 	@echo do the install stuff
 	sudo install -o root -m 755  notes /usr/local/bin/notes 
 	sudo ln -sf /usr/local/bin/notes /usr/local/bin/notebook
+	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/notes
+	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/notebook
 
 manpages:
 	@echo create the docs files to be installed
@@ -52,6 +54,8 @@ uninstall:
 	-sudo rm -f /usr/share/man/man1/notebook.1.gz
 	-sudo rm -f /usr/local/bin/notes
 	-sudo rm -f /usr/local/bin/notebook
+	-sudo rm -f /usr/share/bash-completion/completions/notes
+	-sudo rm -f /usr/share/bash-completion/completions/notebook
 
 ## make reinstall                Reinstall the application
 reinstall:	uninstall install
