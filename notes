@@ -396,9 +396,8 @@ cmd_config () {
 	echo -----------------------------------------
 	
 	echo ""
-	echo The DEFAULT notebook is $DEFAULT_POINTER
-	echo The USE notebook is $USE_POINTER
-	
+	echo The DEFAULT notebook is `ls -l $DEFAULT_POINTER  | cut -d' ' -f9-`
+	echo The USE notebook is  `ls -l $USE_POINTER  | cut -d' ' -f9- `
 }
 
 cmd_tree () {
