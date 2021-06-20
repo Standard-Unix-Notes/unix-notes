@@ -1,9 +1,10 @@
 VER="`git tag | sort -rn | head -1 | tr -d 'v'`"
 TARBALLLOC:=pkgs/tarball
 PKGNAME:=unix-notes-$(VER)
-TARBALL=$(PKGNAME).tar
+TARBALL=tmp/$(PKGNAME).tar
 GZTARBALL=$(TARBALL).gz
-SHATXT=$(PKGNAME).sha256.txt
+SHATXT=tmp/$(PKGNAME).sha256.txt
+OS="`uname`"
 
 ## make help                     Display help text
 help:
@@ -18,6 +19,7 @@ help:
 
 ## make var                      Show makefile variables
 var:
+	@echo Operating System = $(OS)
 	@echo Latest Git tag {Version} = $(VER)
 	@echo Tarball Location = $(TARBALLLOC)
 	@echo Package Name = $(PKGNAME)
@@ -65,7 +67,8 @@ reinstall:	uninstall install
 tarball:
 	git archive $(VER) -o $(TARBALL)
 	gzip $(TARBALL)
-	sha256 $(GZTARBALL) | tee $(SHATXT)
+	-test "$(OS)" = "Linux"  && sha256sum $(GZTARBALL) | tee $(SHATXT) 
+	-test "$(OS)" = "FreeBSD"  && sha256 $(GZTARBALL) | tee $(SHATXT)
 	mv $(GZTARBALL)  $(TARBALLLOC)
 	mv $(SHATXT)  $(TARBALLLOC)
 
