@@ -98,6 +98,7 @@ get_gpg_keyid () {
         echo valid gpg key $newkeyid
     else
         echo No key supplied:  
+        exit 1
     fi
 
 }
@@ -142,7 +143,8 @@ note_add () {
     notefile="${USE_POINTER}/`echo ${filen} | tr ' ' '_'`"
 	
 	if [ -f "$notefile.gpg" ] ; then
-		echo File exists ... cannot create
+		echo File exists ... cannot create. Try 'notes edit' instead.
+        exit 1
 	else
 		get_recipient 
 
@@ -185,6 +187,7 @@ note_view () {
 		gpg -d "${notefile}.gpg" 
 	else 
 		echo Note file does not exist
+        exit 1
 	fi
 }
 
@@ -195,9 +198,6 @@ note_edit () {
 	
 	get_recipient 
 
-	echo $notefile
-	echo $decrypted
-	
 	if [ -f "$notefile" ]; then 
 		gpg -d -o "${decrypted}" "${notefile}" 
 		${EDITOR} "${decrypted}" 
@@ -210,6 +210,7 @@ note_edit () {
 		rm ${decrypted}
 	else 
 		echo Note file does not exist
+        exit 1
 	fi
 }
 
@@ -263,6 +264,7 @@ note_rename () {
 		$MVCP   "$notefile" "$newnotefile"
 	else
 		echo Note $notefile does not exist, aborting...
+        exit 1
 	fi
 }
 
@@ -296,6 +298,7 @@ notebook_delete () {
 			rmdir "$notebook"
 		else
 			echo Deleting files aborted ... aborting deleting notebook $notebook
+            exit 1
 		fi
 	fi
 }
@@ -323,6 +326,7 @@ notebook_rename () {
 		$MVCP  "$notebook" "$newnotebook"
 	else
 		echo Note $notebook does not exist, aborting...
+        exit 1
 	fi
 }
 
@@ -398,7 +402,7 @@ cmd_config () {
 }
 
 cmd_tree () {
-    tree  ${NOTESDIR} | ${PAGER}
+    tree  ${NOTESDIR} 
 }
 
 cmd_view () {
@@ -491,11 +495,11 @@ cmd_default () {
         exit 0
     fi
     if [ -d "$notebook" ] ; then
-        echo target notebook exists
         unlink  "$DEFAULT_POINTER" 
         ln -sf "$nb" "$DEFAULT_POINTER" 
     else
         echo Cannot set default notebook to $notebook as it does not exist
+        exit 1
     fi
 }
 
@@ -512,11 +516,11 @@ cmd_use () {
         exit 0 
     fi
     if [ -d "$notebook" ] ; then
-        echo target notebook exists
         unlink  "$USE_POINTER" 
         ln -sf "$nb" "$USE_POINTER" 
     else
         echo Cannot use $notebook as $nb does not exist
+        exit 1
     fi
 }
 
