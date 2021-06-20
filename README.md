@@ -33,7 +33,7 @@ works with the Yubikey 5 NFC, Yubikey 4 and the Yubikey NEO.
 - Import text files as notes directly into your working notebook
 - Switch between notebooks easily 
 - Multiple notebooks support. Easily add, rename, copy and delete notebooks 
-
+- Bash Completion for sub commands and note/notebook names
 
 ## Licence
 

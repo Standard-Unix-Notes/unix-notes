@@ -2,7 +2,13 @@
 	
 #			RELEASE NOTES
 
-1.5	SECOND RELEASE
+1.8	
+	- Added Bash completion 
+	- fixes for SHA256 creation for FreeBSD sha256 
+	  vs Linux sha256sum commands
+	- A number of documentation corrections
+
+1.6	
 	- Fully expanded README.md giving base documentation
 	- Search functionality added
 	- Updated project documentation to markdown (excluding 
