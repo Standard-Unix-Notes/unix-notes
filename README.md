@@ -51,8 +51,8 @@ Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for det
 
 This Notes system supports multiple notebooks. 
 
-- To manage your notes you simply use the *[notes](notes.md)* command.
-- To manage your notebooks you use the *[notebook](notebook.md)* command.
+- To manage your notes you simply use the *[notes](USING_NOTES.md)* command.
+- To manage your notebooks you use the *[notebook](MANAGING_NOTEBOOKS.md)* command.
 
 
 ## Installing and Uninstalling
@@ -127,3 +127,28 @@ For more details see [YUBIKEYS.md](YUBIKEYS.md).
 ## PIV Integration
 
 For more details on the proposed PIV integration see [PIV.md](PIV.md)
+
+---
+
+## RELEASE NOTES
+
+See [RELEASE-NOTES.md](RELEASE-NOTES.md) for details.
+
+## ROADMAP
+
+See [ROADMAP.md](ROADMAP.md) for details.
+
+## PACKAGING 
+
+We currently package for the following:
+
+- Source Tarball with makefile for installing 
+- Debian .deb package suitable for Debian and Ubuntu based distributions
+
+We are looking to package for other distributions depending on 
+availability: see [PACKAGING.md](PACKAGING.md) for details.
+
+## BUGS & SECURITY
+
+See [SECURITY.md](SECURITY.md) for details on our security policy and 
+[BUGS.md](BUGS.md) for reporting bugs.
