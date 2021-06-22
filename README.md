@@ -46,6 +46,7 @@ This application is licensed under the 3 clause BSD licence. See
 
 Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+---
 
 ## Notes and Notebooks
 
