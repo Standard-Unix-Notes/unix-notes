@@ -109,14 +109,14 @@ See [USING_NOTES.md](USING_NOTES.md) for details.
 
 ## Managing Notebooks
 
-You can have multiple notebooks to organize your notes. Each notebook is 
-just a plain UNIX directory and so could be managed by standard unix 
+You can have multiple notebooks to organise your notes. Each notebook is 
+just a plain UNIX directory and so could be managed by standard UNIX 
 directory tools. 
 
 But to make it easier we have provided a tool called *notebook* that has 
-a series of subcommands for managing notebooks. See 
+a series of sub-commands for managing notebooks. See 
 [MANAGING_NOTEBOOKS.md](MANAGING_NOTEBOOKS.md) for full details of the 
-command and subcommands.
+command and sub-commands.
 
 
 ## Yubikey Integration

@@ -10,14 +10,14 @@ Before using the system the system will need configuring.
 If you do not have a GnuPG private key you should create one now before 
 running the *notes init* command.
 
-## Dependancies
+## Dependencies
 
-Standard Unix Notes has the following dependancies:
+Standard Unix Notes has the following dependencies:
 
 - GnuPG version 2.0 or later
 - SHA256 tools [Part of the coreutils package installed by default][1]
 
-Optional Dependancies
+Optional Dependencies
 
 - The shred command [Part of the coreutils in Linux, optional install in FreeBSD][1]
 

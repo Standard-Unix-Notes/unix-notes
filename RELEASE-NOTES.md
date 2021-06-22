@@ -1,5 +1,4 @@
 #		     STANDARD(?) UNIX NOTES
-	
 #			RELEASE NOTES
 
 1.8	

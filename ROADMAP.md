@@ -12,7 +12,7 @@
 1.6 EXPANDED FEATURES INCLUDING SEARCH
     	- Search through encrypted notes with grep (#19)
     	- Expanded documentation 
-	- Added undocumented 'tree' subcommand for paging through 
+	- Added undocumented 'tree' sub-command for paging through 
 	  the notes directory (#20)
 	- Support for $NOTESDIR to override data store location (#16)
     	- Support for $XDG_DATA_DIR/.notes to store data (#15)
