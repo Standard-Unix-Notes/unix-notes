@@ -1,6 +1,14 @@
 #		     STANDARD(?) UNIX NOTES
 #			RELEASE NOTES
 
+2.1
+	- Migrated to ascii encoded notes. 
+	- To migrate old files just run 'notes newkey <KEYID>' 
+	  where  KEYID is your existing key from 'config'
+	- Once you have checked that your old files have been 
+	  converted you can use 
+	  'find ~/.notes -name \*.gpg | xargs rm'   to delete
+
 2.0 	
 	- Added journal(1) for managing journals
 	- documentation reorganisation

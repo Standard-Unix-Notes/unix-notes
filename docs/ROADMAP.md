@@ -3,6 +3,8 @@
 				
 				ROADMAP
 
+2.1 Migrate to ascii encoded GPG files (see RELEASE-NOTES.md)
+
 2.0 Journal functionality and other fixes 
 
 	- Added journal(1) to the suite of scripts for managing your 

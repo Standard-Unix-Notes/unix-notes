@@ -24,7 +24,7 @@ USE_POINTER="${NOTESDIR}/USE"
 DIRFORDIARY="${NOTESDIR}/Journal"
 JOURNALDIR="${JOURNALDIR:-$DIRFORDIARY}"
 GPGKEY=''
-GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
+GPG_OPTS=" --quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
 SHREDCMD="rm"
 EDITOR="${EDITOR:-nano}"
@@ -161,7 +161,7 @@ note_add () {
 		#aspell -c "$notefile"
 
 		# encrypt note file
-		$GPG -e -r $KEY $GPG_OPTS "$notefile"
+		$GPG -ear $KEY $GPG_OPTS  "$notefile"
 
 		rm "$notefile"
 	fi
@@ -176,7 +176,7 @@ note_import () {
 	get_recipient
 
 	if [ -f "${toimport}" ] ; then 
-		$GPG -e -r $KEY $GPG_OPTS -o  "${USE_POINTER}/${target}.gpg" "${toimport}" 
+		$GPG -ear $KEY $GPG_OPTS -o  "${USE_POINTER}/${target}.gpg" "${toimport}" 
 	fi
 }
 
@@ -206,12 +206,12 @@ note_edit () {
 	if [ -f "$notefile" ]; then 
 		gpg -d -o "${decrypted}" "${notefile}" 
 		${EDITOR} "${decrypted}" 
-		$GPG -e -r $KEY $GPG_OPTS "${decrypted}"
+		$GPG -ear $KEY $GPG_OPTS  "${decrypted}"
 		rm ${decrypted}
 	elif [ -f "${notefile}.gpg" ]; then 
 		gpg -d -o "${decrypted}"  "${notefile}.gpg" 
 		${EDITOR} "${decrypted}" 
-		$GPG -e -r $KEY $GPG_OPTS "${decrypted}"
+		$GPG -ear $KEY $GPG_OPTS  "${decrypted}"
 		rm ${decrypted}
 	else 
 		echo Note file does not exist
@@ -568,7 +568,7 @@ cmd_newkey () {
         do 
             echo $filen; 
             gpg -o "${filen}" --yes -d "${filen}.gpg" 
-            gpg -r ${mynewkey} --yes -e "${filen}"  && ${SHREDCMD} "${filen}"
+            gpg -r ${mynewkey} --yes -ea "${filen}"  && ${SHREDCMD} "${filen}"
             
         done
    
@@ -632,11 +632,11 @@ case "$1" in
         help|--help) shift;             cmd_usage "$@" ;;
         version|--version) shift;       cmd_version "$@" ;;
         show|ls|list) shift;            cmd_show "$@" ;;
-        view|cat) shift;        	cmd_view "$@" ;;
+        view|cat) shift;              	cmd_view "$@" ;;
         find|search|grep) shift;        cmd_find "$@" ;;
         insert|add) shift;              cmd_insert "$@" ;;
         import) shift;              	cmd_import "$@" ;;
-        edit|ed|-e) shift;              cmd_edit "$@" ;;
+        edit|ed) shift;                 cmd_edit "$@" ;;
         generate) shift;                cmd_generate "$@" ;;
         delete|rm|remove) shift;        cmd_delete "$@" ;;
         rename|mv) shift;               cmd_copy_move "mv" "$@" ;;
