@@ -11,7 +11,7 @@ help:
 	@echo ""
 	@echo "Standard(?) Unix Notes"
 	@echo ""
-	@echo "GPG encrypted Notes system"
+	@echo "GPG encrypted Notes & Journal system"
 	@echo ""
 	@echo Make now runs 'git tag' to work out the version for the tarball
 	@echo ""
@@ -34,30 +34,38 @@ install_files:
 	@echo do the install stuff
 	sudo install -o root -m 755  notes /usr/local/bin/notes 
 	sudo ln -sf /usr/local/bin/notes /usr/local/bin/notebook
+	sudo install -o root -m 755 journal /usr/local/bin/journal
 	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/notes
 	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/notebook
+	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/journal
 
 manpages:
 	@echo create the docs files to be installed
 	gzip -c docs/notes.1  > tmp/notes.1.gz
 	gzip -c docs/notebook.1  > tmp/notebook.1.gz
+	gzip -c docs/journal.1 > tmp/journal.1.gz
 	sudo install -o root  -m 644 tmp/notes.1.gz /usr/share/man/man1
 	sudo install -o root  -m 644 tmp/notebook.1.gz /usr/share/man/man1
+	sudo install -o root  -m 644 tmp/journal.1.gz  /usr/share/man/man1
 
 clean: 
 	@echo clean up after build
 	-rm tmp/notes.1.gz
 	-rm tmp/notebook.1.gz
+	-rm tmp/journal.1.gz
 
 ## make uninstall                Uninstall the application
 uninstall:
 	@echo uninstall application
 	-sudo rm -f /usr/share/man/man1/notes.1.gz
 	-sudo rm -f /usr/share/man/man1/notebook.1.gz
+	-sudo rm -f /usr/share/man/man1/journal.1.gz
 	-sudo rm -f /usr/local/bin/notes
 	-sudo rm -f /usr/local/bin/notebook
+	-sudo rm -f /usr/local/bin/journal
 	-sudo rm -f /usr/share/bash-completion/completions/notes
 	-sudo rm -f /usr/share/bash-completion/completions/notebook
+	-sudo rm -f /usr/share/bash-completion/completions/journal
 
 ## make reinstall                Reinstall the application
 reinstall:	uninstall install

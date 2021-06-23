@@ -44,20 +44,20 @@ This application is licensed under the 3 clause BSD licence. See
 
 ## Contributing to the Project
 
-Contributions are welcome. Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Contributions are welcome. Please see [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for details.
 
 
 ## Notes and Notebooks
 
 This Notes system supports multiple notebooks. 
 
-- To manage your notes you simply use the *[notes](USING_NOTES.md)* command.
-- To manage your notebooks you use the *[notebook](MANAGING_NOTEBOOKS.md)* command.
+- To manage your notes you simply use the *[notes](docs/USING_NOTES.md)* command.
+- To manage your notebooks you use the *[notebook](docs/MANAGING_NOTEBOOKS.md)* command.
 
 
 ## Installing and Uninstalling
 
-Adding or removing this software is easy. See [INSTALL.md](INSTALL.md) 
+Adding or removing this software is easy. See [docs/INSTALL.md](docs/INSTALL.md) 
 or [UNINSTALL.md](UNINSTALL.md) for details.
 
 
@@ -65,7 +65,7 @@ or [UNINSTALL.md](UNINSTALL.md) for details.
 
 After installation you need to setup the environment. Standard Unix 
 Notes does this with environment variables and the *[notes 
-init](USING_NOTES.md)* command.
+init](docs/USING_NOTES.md)* command.
 
 
 ## Managing Notes
@@ -84,8 +84,8 @@ The *notes(1)* application automatically replaces spaces in the note title
 with underscores.
 
 For full details of commands available see 
-[USING_NOTES.md](USING_NOTES.md) for details or view the *notes(1)* man 
-page.
+[docs/USING_NOTES.md](docs/USING_NOTES.md) for details or view the 
+*notes(1)* man page.
 
 
 ## Changing GnuPG encryption keys
@@ -103,40 +103,48 @@ of your notes. Using this command allows you to change the encryption
 keys for all of your notes at once rather than having to change them 
 manually.
 
-See [USING_NOTES.md](USING_NOTES.md) for details.
+See [docs/USING_NOTES.md](docs/USING_NOTES.md) for details.
 
 
 ## Managing Notebooks
 
-You can have multiple notebooks to organize your notes. Each notebook is 
-just a plain UNIX directory and so could be managed by standard unix 
+You can have multiple notebooks to organise your notes. Each notebook is 
+just a plain UNIX directory and so could be managed by standard UNIX 
 directory tools. 
 
 But to make it easier we have provided a tool called *notebook* that has 
-a series of subcommands for managing notebooks. See 
-[MANAGING_NOTEBOOKS.md](MANAGING_NOTEBOOKS.md) for full details of the 
-command and subcommands.
+a series of sub-commands for managing notebooks. See 
+[docs/MANAGING_NOTEBOOKS.md](docs/MANAGING_NOTEBOOKS.md) for full details of the 
+command and sub-commands.
+
+
+## Journals
+
+Also included is a journal(1) system for encrypted journal entries. See 
+[docs/JOURNAL.md](docs/JOURNAL.md) for details.
 
 
 ## Yubikey Integration
 
 Standard Unix Notes supports GPG Keys on Yubikeys for GPG decryption. 
-For more details see [YUBIKEYS.md](YUBIKEYS.md).
+For more details see [docs/YUBIKEYS.md](docs/YUBIKEYS.md).
 
 
 ## PIV Integration
 
-For more details on the proposed PIV integration see [PIV.md](PIV.md)
+For more details on the proposed PIV integration see [docs/PIV.md](docs/PIV.md)
 
 ---
 
 ## RELEASE NOTES
 
-See [RELEASE-NOTES.md](RELEASE-NOTES.md) for details.
+See [docs/RELEASE-NOTES.md](docs/RELEASE-NOTES.md) for details.
+
 
 ## ROADMAP
 
-See [ROADMAP.md](ROADMAP.md) for details.
+See [docs/ROADMAP.md](docs/ROADMAP.md) for details.
+
 
 ## PACKAGING 
 
@@ -146,9 +154,9 @@ We currently package for the following:
 - Debian .deb package suitable for Debian and Ubuntu based distributions
 
 We are looking to package for other distributions depending on 
-availability: see [PACKAGING.md](PACKAGING.md) for details.
+availability: see [docs/PACKAGING.md](docs/PACKAGING.md) for details.
 
 ## BUGS & SECURITY
 
-See [SECURITY.md](SECURITY.md) for details on our security policy and 
-[BUGS.md](BUGS.md) for reporting bugs.
+See [docs/SECURITY.md](docs/SECURITY.md) for details on our security policy and 
+[docs/BUGS.md](docs/BUGS.md) for reporting bugs.

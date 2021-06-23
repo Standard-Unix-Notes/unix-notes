@@ -1,8 +1,6 @@
+#			BUGS
 
-			BUGS
-			""""
-
-REPORTING
+## REPORTING
 
 Please report any bugs found to the GitHub repo by filing an issue 
 there.
@@ -10,13 +8,13 @@ there.
 https://github.com/Standard-Unix-Notes/unix-notes/issues
 
 
-PROGRESS
+## PROGRESS
 
 Progress on bug fixes will be discussed in the comments relating to a 
 previously filed issue.
 
 
-PATCHES
+## PATCHES
 
 Bug fixes will always be added to HEAD of the repo commit log but may 
 not automatically be packaged and released immediately. You will always 

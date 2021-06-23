@@ -1,0 +1,424 @@
+#!/bin/sh    
+#
+#	STANDARD(?) UNIX NOTES 
+#
+# This is Unix Notes. An GPG encrypted notes system designed for privacy
+#
+# The idea came from 'pass' the standard Unix password manager
+
+# VARIABLES
+VERSION=1.10
+#NOTES_UMASK='077'
+# Handle $XDG_DATA_DIR -or- NOTESDIR being set in environment
+if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then
+	# only use $XDG_DATA_DIR if NOTESDIR not set
+	NOTESDIR="${XDG_DATA_DIR}/.notes"
+else
+	# use NOTESDIR if set else default to ~/.notes
+	NOTESDIR="${NOTESDIR:-${HOME}/.notes}"
+fi
+CONFIGFILE="${NOTESDIR}/config"
+JOURNALDIR="${NOTESDIR}/Journal"
+INITIAL_NOTEBOOK="${NOTESDIR}/notes"
+DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
+USE_POINTER="${NOTESDIR}/USE"
+GPGKEY=''
+GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
+GPG="gpg"
+SHREDCMD="rm"
+EDITOR="${EDITOR:-nano}"
+PAGER="${PAGER:-more}"
+#SHREDCMD="shred"
+YEAR="`date "+%Y"`"
+JOURNALNAME="`date "+%B_%d"`"
+TODAY="${JOURNALDIR}/${YEAR}/${JOURNALNAME}"
+ENCRYPTEDTARGET="${TODAY}.gpg"
+TIMESTAMP="`date \"+%B %d, %Y.  %H:%M\"`"
+
+#
+# initialise notes system
+#
+timestamp () {
+	echo "" >> $TODAY
+	echo $TIMESTAMP >>  $TODAY
+	echo "" >> $TODAY
+}
+
+get_recipient () {
+	KEY=`grep KEY ${CONFIGFILE}| sed s/^KEY// | tr -d [:blank:]`
+}
+
+get_gpg_keyid () {
+    newkeyid="$1"
+    echo newkeyid supplied $newkeyid
+
+    if [ "$newkeyid" != "" ] ; then
+
+        validate_gpg_keyid  $newkeyid
+
+        echo valid gpg key $newkeyid
+    else
+        echo No key supplied:  
+        exit 1
+    fi
+
+}
+
+validate_gpg_keyid () {
+    testkey="$1"
+    keyids="/tmp/keyids.$$"
+
+    gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
+
+    # test key character length = the last 16 (short) or the full 40 (long) are acceptable
+    case ${#testkey} in
+        16|40) 
+            shortkey="`echo ${testkey} | tail -c 17`"
+            if [ "`grep ${shortkey} ${keyids}`" = "0" ] ; then
+                echo Invalid GPG keyid
+                cat $keyids
+                echo \n\n Type 'gpg -k <keyid> to find out more about key'
+                rm $keyids
+                exit 1
+            else 
+                echo Valid key $testkey
+            fi
+            ;;
+        *)  
+            echo Provided key is invalid: keys should be 16 or 40 characters
+            echo Valid keys are ...
+            cat $keyids
+            echo \n\n Type 'gpg -k <keyid> to find out more about key'
+            rm $keyids
+            exit 1;;
+    esac
+}
+
+
+#
+# journal functions
+#
+
+journal_add () {
+
+	mkdir -p ${JOURNALDIR}/${YEAR}
+
+	if [ -f  "${ENCRYPTEDTARGET}" ]; then
+		gpg  -o ${TODAY} -d "${ENCRYPTEDTARGET}"  
+	fi
+
+	timestamp
+
+	$EDITOR $TODAY
+
+	get_recipient
+
+	$GPG -e -r $KEY $GPG_OPTS $TODAY
+
+	rm $TODAY
+}
+
+journal_import () {
+
+	mkdir -p ${JOURNALDIR}/${YEAR}
+
+	if [ -f  "${ENCRYPTEDTARGET}" ]; then
+		gpg  -o ${TODAY} -d "${ENCRYPTEDTARGET}"  
+	fi
+
+	timestamp
+
+	toimport="$@"
+	pathname="`dirname ${toimport}`"
+	notefile="`basename ${toimport}`"
+
+	get_recipient
+
+	if [ -f "${toimport}" ] ; then 
+		cat ${toimport} >> ${TODAY}
+		echo "" >> ${TODAY}
+		$GPG -e -r $KEY $GPG_OPTS  "${TODAY}" 
+	else
+		echo  ${toimport} does not exist
+		exit 1
+	fi
+
+	rm ${TODAY}
+}
+
+journal_view () {
+
+	VIEWOPTIONS="$@"
+
+	if [ "$VIEWOPTIONS" != "" ]; then 
+		TARGET="${VIEWOPTIONS}"
+	else 
+		TARGET="${ENCRYPTEDTARGET}"
+	fi 
+
+	if [ -f "${TARGET}" ]; then
+        	gpg -d ${TARGET}
+	else
+		echo No journal file for $TARGET
+		exit 1
+	fi
+}
+
+journal_edit () {
+
+    VIEWOPTIONS="$@"
+
+	mkdir -p ${JOURNALDIR}/${YEAR}
+
+
+	if [ "$VIEWOPTIONS" != "" ]; then 
+		TARGET="${VIEWOPTIONS}"
+	else 
+		TARGET="${ENCRYPTEDTARGET}"
+	fi 
+
+    BASETARGET="`echo $TARGET | sed s/.gpg//`"
+
+	if [ -f  "${TARGET}" ]; then
+		gpg  -o ${BASETARGET} -d "${TARGET}"  
+    else
+            echo No journal file for $TARGET
+            exit 1
+	fi
+
+	$EDITOR $BASETARGET
+
+	get_recipient
+
+	$GPG -e -r $KEY $GPG_OPTS $BASETARGET
+
+	rm $BASETARGET
+}
+
+journal_list () {
+    
+    YEAROPTION="$@"
+    
+    if [ "$YEAROPTION" = "" ]; then
+        echo ${YEAR}:
+        ls  ${JOURNALDIR}/${YEAR} | column
+        echo ""
+        exit 0
+    fi
+
+    if [ -d "${JOURNALDIR}/${YEAROPTION}" ]; then
+        echo ${YEAROPTION}:
+        ls ${JOURNALDIR}/${YEAROPTION} | column
+        echo ""
+    else
+        echo Supplied year $YEAROPTION does not exist. 
+    fi
+}
+
+journal_delete () {
+	
+	TARGET="$@"
+	
+	if [ -f  "${TARGET}" ]; then
+		rm -i ${TARGET}
+	else
+		echo ${TARGET} does not exist
+		exit 1
+	fi
+}
+
+journal_rename () {
+
+	TARGET="$@"
+
+	if [ -f "${TARGET}" ]; then
+		read -p "Please enter new name for journal entry: "  newname
+		mv ${TARGET} ${JOURNALDIR}/${YEAR}/${newname}
+
+	else
+		echo ${TARGET} does not exist
+		exit 1
+	fi
+}
+
+journal_copy () {
+
+	TARGET="$@"
+
+	echo TARGET = $TARGET
+
+	if [ -f "${TARGET}" ]; then
+		read -p "Please enter new name to copy journal entry to: " newname
+		cp ${TARGET} ${JOURNALDIR}/${YEAR}/${newname}
+	else 
+		echo ${TARGET} does not exist
+		exit 1
+	fi
+}
+
+
+#
+# OTHER COMMANDS
+#
+
+journal_extension_or_show () {
+	journal_usage
+}
+
+journal_usage () {
+cat << ENDHELP
+
+		Standard (?) Unix Notes system
+
+GPG encrypted notes and journal system for BSD and Linux systems
+
+	journal config        display config file
+	notes newkey          change GPG key 
+	journal help          show help
+	journal version       show version
+
+	journal find|search                       find text in journals
+	journal show|ls|list                      list journal entries
+	journal insert|add                        add/append to today's journal entry
+	journal view|cat         [journal-entry]  view a journal entry
+	journal import           file-path        import a text file as a journal entry
+	journal rename|mv        journal-entry    rename a journal entry (prompts for new name)
+	journal copy|cp          journal-entry    copy a journal entry (prompts for new name)
+	journal delete|remove|rm journal-entry    delete a journal entry
+	journal edit|ed          [journal-entry]  edit journal entry in default editor
+
+See journal(1) man page for details
+See notes(1) and notebook(1) for details on the notes system or issue the commands
+'notes help'  or 'notebook help' for a quick summary. 
+
+ENDHELP
+}
+
+journal_version () {
+	echo "Version $VERSION"
+}
+
+journal_config () {
+	echo The 'config' file contains:
+	echo ""
+	echo -----------------------------------------
+	echo ""
+	cat $CONFIGFILE
+	echo ""
+	echo -----------------------------------------
+	
+	echo ""
+	echo The DEFAULT notebook is `ls -l $DEFAULT_POINTER  | cut -d' ' -f9-`
+	echo The USE notebook is  `ls -l $USE_POINTER  | cut -d' ' -f9- `
+	echo Journal entries are kept in $JOURNALDIR
+}
+
+journal_tree () {
+    tree  ${JOURNALDIR} 
+}
+
+journal_find () {
+	searchterm="$@"
+
+	for file in `find ${JOURNALDIR} -name \*.gpg -print`
+	do
+		gpg -d $file 2>/dev/null | grep -H --label "`basename ${file}`" "$searchterm" 
+
+	done
+}
+
+cmd_newkey () {
+    mynewkey="$1"
+
+    if [ "$mynewkey" = "" ]; then
+        echo No new key supplied
+        echo There are the following private keys on your keyring
+        gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5
+        exit 1
+    fi
+
+	get_recipient
+    get_gpg_keyid   $mynewkey
+
+    # now recrypt files 
+    find ~/.notes -name \*.gpg | sed s/.gpg// | \
+
+        while read filen ; 
+        do 
+            echo $filen; 
+            gpg -o "${filen}" --yes -d "${filen}.gpg" 
+            gpg -r ${mynewkey} --yes -e "${filen}"  && ${SHREDCMD} "${filen}"
+            
+        done
+   
+    # replace key in config file
+    sed -i s/^KEY.*$/KEY\\t${mynewkey}/   ${CONFIGFILE}
+}
+
+journal_licence () {
+    ${PAGER} <<EOF
+BSD 3-Clause License
+
+Copyright (c) 2021, Standard-Unix-Notes
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+EOF
+}
+
+
+#########################
+#                      	#
+#   MAIN PROGRAM        #
+#                       #
+#########################
+
+PROGRAM="`basename ${0##*/}`"
+COMMAND="$1"
+
+case "$1" in
+        config) shift;                  journal_config "$@" ;;
+        tree) shift;                  	journal_tree ;;
+        licence|license) shift;         journal_licence "$@" ;;
+        newkey) shift;                  cmd_newkey "$@" ;;
+        help|--help) shift;             journal_usage "$@" ;;
+        version|--version) shift;       journal_version "$@" ;;
+        show|ls|list) shift;            journal_list "$@" ;;
+        view|cat) shift;        	journal_view "$@" ;;
+        find|search|grep) shift;        journal_find "$@" ;;
+        insert|add) shift;              journal_add  ;;
+        import) shift;              	journal_import "$@" ;;
+        edit|ed|-e) shift;              journal_edit "$@" ;;
+        delete|rm|remove) shift;        journal_delete "$@" ;;
+        rename|mv) shift;               journal_rename "$@" ;;
+        copy|cp) shift;                 journal_copy "$@" ;;
+        git) shift;                     cmd_git "$@" ;;
+        *)                              journal_extension_or_show "$@" ;;
+esac
+exit 0
+
+

@@ -1,0 +1,317 @@
+.\" Manpage for Standard (?) Unix Notes
+.\" aka notes
+.\" See https://github.com/Standard-Unix-Notes/unix-notes
+.TH journal 1 "22 June 2021" "1.10" "Journal man page"
+.SH NAME
+Journal \-  GPG encrypted journal
+.SH SYNOPSIS
+.B
+journal
+[
+.IB
+command
+] [
+.I
+filename
+|
+.I \fIjournal entry\fP
+]
+
+.SH CONFIGURATION
+
+Manual configuration for the GPG key can be added using the phrase 
+\fBKEY <email address>\fP in the file "<notesdir>/config" where 
+"notesdir" is setup during the "init" command and defaults to "~/.notes" 
+unless $XDG_DATA_DIR or $NOTESDIR is set in the environment. NB 
+$NOTESDIR will override ANY setting of $XDG_DATA_DIR allowing the user 
+to choose their own directory even if $XDG_DATA_DIR is set.
+
+By default the \fBnotes init\fP command sets up the default directory 
+($NOTESDIR) for notes(1), notebook(1) and journal(1). It also creates a 
+subdirectory ($NOTESDIR/Journal) to hold your journal notes. To override 
+the default directory you should set $JOURNALDIR in your environment 
+before running \fBnotes init\fP otherwise you should manually delete the 
+Journal subdirectory of $NOTESDIR. As you add each journal entry 
+journal(1) will create any directories needed.
+
+.SH DESCRIPTION 
+
+Journal(1) is included as part of the Standard(?) Unix Notes system, a 
+GPG encrypted notebook for Unix/BSD/Linux operating systems. 
+
+By default the Journal is included inside the directory that holds the 
+notebooks in a directory called Journal. The folder is hidden from 
+notebook(1) the tool for managing ntoebook folders.
+
+It uses the same GPG key as notes(1) and is setup initially by \fBnotes 
+init\fP and changed later with \fBnotes newkey\fP. For further details 
+on setting up or changing the GnuPG key see notes(1).
+
+Journal(1) has a similar set of commands to notes(1) for the managing of 
+journal entries. But the function of these commands is more limited as 
+each day's journal entry is fixed.
+
+Under the 'Journal' directory you will find directories named after the 
+year. Inside those folders you find one file per day for the journal 
+entries for the day. For example, for the journal dated 21 June 2021 you 
+will find the appropriate file in '${NOTESDIR}/Journal/2021/June_21.gpg'.
+
+Every time you run 'journal add' the appropriate file is decrypted (if 
+it exists), then a date/timestamp is appended to the file which is then 
+opened in your default editor ($EDITOR). After saving it is then 
+encrypted using the GnuPG specified in the ${NOTESDIR}/config file.
+
+Before using the system the user should create a GPG key if they haven't 
+got one. Notes will automatically search the user's GPG keyring and 
+default to using the first private key it finds (Note that the code 
+currently isn't clever enough to distinguish if that key is expired). If 
+this is the wrong key you can change it in two ways:
+
+1. Simply edit the \fB~/.notes/config\fP file and replace the KEY 
+parameter with the correct email address. This will only work if you 
+only have one key with that email address. If you have two keys with 
+that email address, (for example if one has expired but you have kept it 
+for decrypting old files) then you should replace the email address with 
+the KEYID of the private key you wish to use.
+
+2. If you know the GPG keyid and there are no duplicate email address 
+issues with other keys, then run \fBnotes newkey <keyid>\fP. Notes will 
+replace the keyid automatically in the config file.
+
+.SH SHELL INTEGRATION
+
+Standard Unix Notes system supports bash completion for notes(1), 
+notebook(1) and journal(1) programs. 
+
+
+.SH COMMANDS 
+
+The journal(1) program takes a set of commands that allows the user to manipulate the 
+encrypted journal entries in the system.
+.RE
+
+.SY help
+.YS
+Displays a quick help page displaying available commands.
+
+.SY version
+.YS
+Displays the program version number.
+
+.SY "show|ls|list [year]" .YS List notes in current or specified year. 
+All journal entry files found for the year are displayed to the STDOUT.
+
+.SY "newkey KeyID"
+.YS
+.OP KeyID 
+The GPG KeyID can be in one of two formats. The standard 40 character full KeyID, or the 
+shorter 16 character version (this is the last 16 characters of the full KeyID).
+.PP
+Change GPG key encryption for all notebooks. The newkey command takes either a 
+full 40 character GPG KeyID or the shortened 16 character KeyID 
+(the last 16 characters of the full KeyID as shown by format=short). 
+The newkey command will then find all the notes from all notebooks, decrypt the note 
+before re-encrypting the note with the new KeyID. 
+
+
+.SY "find|search|grep  search term" 
+.YS 
+.OP search term
+The search term is passed to grep inside the program for processing the 
+search. Each journal entry in the ${NOTESDIR}/Journal directory is 
+decrypted sequentially to STDOUT and passed through grep to search for 
+terms.
+
+
+.SY "insert|add" 
+.YS 
+
+Adds a journal entry to today's journal file creating it and any 
+directories needed as necessary. If necessary the file is decrypted 
+before a date/timestamp is added. Then your default $EDITOR is called to 
+edit the file before finally encrypting the file again.
+
+
+.SY "view|cat [journal-entry]" 
+.YS 
+View a particular date's journal entries. This command decrypts either 
+today's or the specified date's journal file to the STDOUT.
+.OP journal-entry 
+If you specify a particular journal file then 
+journal(1) will load that file for viewing. If omitted journal(1) loads 
+today's journal entry file. These can be auto completed in Bash.
+
+
+.SY "list|ls|show  [YEAR]"
+.YS
+List all journal entries in a specified year. By default the current year is shown.
+.OP YEAR
+You may choose to supply a 4-digit year to specify a year other than the current year.
+
+.SY "import  file-path"
+.YS
+Import a text file into a journal entry, encrypting the note as it is imported.
+
+.SY "rename|mv  [filename]"
+.YS
+Rename the specified journal file. The program prompts the user for a new name.
+Original encrypted journal entry is NOT decrypted in the process. 
+
+.SY "copy|cp [YYYY] [filename]" 
+.YS 
+Duplicate a journal file. The user will be prompted for a new date to 
+name the file. This is useful for those wanting to use template files or 
+just for regular duplication.
+
+.SY "delete|rm  [filename]"
+.YS
+Delete a journal file. 
+
+.SY "edit|ed  [journal-entry]"
+.YS
+The program will take the journalfile specified on the command line and decrypt it. 
+After calling the user's default editor ($EDITOR) it will encrypt the file using the 
+user's currently configured encryption KeyID. The temporary file used to edit will be 
+then securely scrubbed.
+.OP journal-entry
+You can specify a particular journal entry file to edit instead of today's entry.
+
+
+.SH EXIT STATUS
+
+Upon an error notes returns a non zero value upon aborting.
+
+.SH ENVIRONMENT
+
+\fB$EDITOR\fP
+Journal uses the shell variable to determine which editor the user prefers. If unset it 
+will default to \fBnano\fP.
+
+By default journal(1) creates it's files in ~/.notes/Journal for the user. 
+
+.SH FILES
+
+The following files are found in the notes directory (~/.notes by default):
+
+.TP 
+\fBconfig\fP
+The configuration file for notes. Currently the only option is for specifying the key to 
+be used for encryption (KEY <email address>).
+
+.TP 
+\fBJournal\fP 
+
+The 'Journal' directory is where journal(1) stores all of it's files. 
+Under this directory there is one sub-directory per year. Inside those 
+directories there is a single file per day for all the journal entries 
+of that day.
+
+.SH CONFORMANCE
+
+The script is written to use the Bourne Shell and avoid all Bash-isms (which would have 
+made the coding a little easier in some cases. Although Bash is installed by default on 
+most Linuxes, it is not installed by default on a number of other Unix-like operating 
+systems including FreeBSD.
+
+This is deliberate as all Unix and Linux systems should have a POSIX compliant shell (or 
+at least be backwards compatible to one). Hence the application was written for the 
+lowest common denominator.
+
+.SH NOTES
+
+There is currently no sync built into this application. However, the user can simply run 
+a rsync or scp in order to synchronise between two machines running Journal.
+
+.SH BUGS
+
+See https://github.com/Standard-Unix-Notes/unix-notes/issues for details on any Bugs and 
+Issues with the project.
+
+Please report any bugs on the GitHub page.
+
+.SH EXAMPLES
+
+.EX
+Show help:
+\fB$ journal\fP 
+
+Initialises journal directory (~/.notes/Journal):
+\fB$ notes init\fP
+
+\fB$ journal add\fP
+Add a timestamped journal entry to today's journal file.
+
+.SH STANDARD(?) UNIX NOTES AND YUBIKEY
+
+Journal(1) supports all hardware devices that GnuPG supports. This includes 
+the following Yubico devices:
+
+.RS 
+.IP \(em 2
+Yubikey 5 Series (including FIPS models)
+.IP \(em 2
+Yubikey 4 Series (including FIPS models)
+.IP \(em 2
+Yubikey NEO
+.RE 
+
+A good guide for using GnuPG with Yubikeys can be found at 
+.UR https://github.com/drduh/YubiKey-Guide
+https://github.com/drduh/YubiKey-Guide
+.UE
+
+.SY \fBPIN and Touch features of Yubikey\fP 
+.YS 
+Yubikeys allow you to require a PIN number or a Touch for encryption 
+actions.
+
+PIN entry can be cached for a short period allowing the following 
+actions to be completed without the need for reentry of the PIN.
+
+In addition later Yubikeys with the firmware 5.2.3 (or later) allow you 
+to cache the button touch functionality for 15 seconds. You can enable 
+this with the command \fB$ ykman openpgp set-touch enc cached\fP. This will 
+prevent the Yubikey from requiring a touch for every file in the 
+multi-file operations like "notes newkey" and "journal find".
+
+.SY \fBPIV card support\fP
+.YS
+Future releases hope to support PIV devices as well. But as they use an 
+application other than GnuPG to encrypt and decrypt notes, further 
+coding is needed for both the configuration and the cryptography. This 
+functionality has been added to the ROADMAP.
+
+
+.SH SEE ALSO
+
+.IP \fBnotes(1)\fP The companion command for managing notes.
+.IP \fBnotebook(1)\fP The companion command for managing notebooks for notes.
+
+
+.SH PROJECT PAGE
+.UR https://github.com/Standard-Unix-Notes/unix-notes
+GitHub Project page
+.UE
+
+.SS ROADMAP
+.UR https://github.com/Standard-Unix-Notes/unix-notes/raw/ROADMAP.md
+Project GitHub
+.UE
+
+.SS CONTRIBUTING 
+
+Contributions are welcome, see CONTRIBUTING in the tarball or in the 
+.UR https://github.com/Standard-Unix-Notes/unix-notes/raw/CONTRIBUTING.md
+GitHub repository
+.UE
+
+.SS LICENCE
+
+The Standard(?) Unix Notes program is licensed under the BSD 3-clause licence.
+
+.SS AUTHOR
+
+Ian Stanley can be contacted via project 
+.UR https://github.com/iandstanley
+GitHub page
+.UE

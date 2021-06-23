@@ -1,13 +1,12 @@
-# BASH COMPLETION SCRIPT FOR STANDARD_UNIX_NOTES  notes(1) notebook(1)
+# BASH COMPLETION SCRIPT FOR STANDARD_UNIX_NOTES  journal(1)
 # Original PASSWORD_STORE version Copyright (C) 2012 - 2014 Jason A. Donenfeld <Jason@zx2c4.com> and
 # Brian Mattern <rephorm@rephorm.com>. All Rights Reserved.
 
 # Installed into 
-# /usr/share/bash-completion/completions/notes
-# /usr/share/bash-completion/completions/notebook
+# /usr/share/bash-completion/completions/journal
 
 
-_notes_complete_entries () {
+_journal_complete_entries () {
     if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then
             # only use $XDG_DATA_DIR if NOTESDIR not set
             NOTESDIR="${XDG_DATA_DIR}/.notes"
@@ -19,9 +18,13 @@ _notes_complete_entries () {
     INITIAL_NOTEBOOK="${NOTESDIR}/notes"
     DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
     USE_POINTER="${NOTESDIR}/USE"
+    JOURNALDIR="${NOTESDIR}/Journal"
 
-    #fixup original password store code to search inside USE_POINTER (current notebook)
-	prefix="${USE_POINTER}"
+
+
+
+    #fixup original password store code to search inside the Journal dir
+	prefix="${JOURNALDIR}"
 
     # code chunk below is fromthe original password store code
 	prefix="${prefix%/}/"
@@ -76,40 +79,8 @@ _notes_complete_entries () {
 	fi
 }
 
-_notebook_complete_folders () {
-    if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then
-          # only use $XDG_DATA_DIR if NOTESDIR not set
-          NOTESDIR="${XDG_DATA_DIR}/.notes"
-    else
-          # use NOTESDIR if set else default to ~/.notes
-          NOTESDIR="${NOTESDIR:-${HOME}/.notes}"
-    fi
-    CONFIGFILE="${NOTESDIR}/config"
-    INITIAL_NOTEBOOK="${NOTESDIR}/notes"
-    DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
-    USE_POINTER="${NOTESDIR}/USE"
 
-	prefix="${NOTESDIR}"
-	prefix="${prefix%/}/"
-
-	local IFS=$'\n'
-	local items=($(compgen -d $prefix$cur))
-	for item in ${items[@]}; do
-
-        case "$item" in
-            "$USE_POINTER") 
-                ;;
-            "$DEFAULT_POINTER")
-                ;;
-            *)
-               #[[ $item == $prefix.* ]] && continue
-                COMPREPLY+=("${item#$prefix}/")
-                ;;
-        esac
-	done
-}
-
-_notes_complete_keys () {
+_journal_complete_keys () {
 	local IFS=$'\n'
 	local GPG=gpg2
 	which $GPG >/dev/null || GPG=gpg
@@ -118,16 +89,16 @@ _notes_complete_keys () {
 	COMPREPLY+=($(compgen -W "${keys}" -- ${cur}))
 }
 
-_notes()
+_journal()
 {
 	COMPREPLY=()
 	local cur="${COMP_WORDS[COMP_CWORD]}"
-	local commands="init config newkey help version ls list show find search add insert view cat import rename mv copy  cp rm remove delete edit  ${UNIX_NOTES_EXTENSION_COMMANDS[*]}"
+	local commands="config newkey help version ls list show find search grep add insert view cat import rename mv copy  cp rm remove delete edit  ${UNIX_journal_EXTENSION_COMMANDS[*]}"
 	if [[ $COMP_CWORD -gt 1 ]]; then
 		local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
 		case "${COMP_WORDS[1]}" in
 			view|cat|edit|insert|add|cp|copy|mv|rename|rm|remove|delete)
-				_notes_complete_entries
+				_journal_complete_entries
 				;;
             import)
                 ;;
@@ -136,42 +107,21 @@ _notes()
 		esac
 
 		# To add completion for an extension command define a function like this:
-		# __unix_notes_extension_complete_<COMMAND>() {
+		# __unix_journal_extension_complete_<COMMAND>() {
 		#     COMPREPLY+=($(compgen -W "-o --option" -- ${cur}))
-		#     _notes_complete_entries 1
+		#     _journal_complete_entries 1
 		# }
 		#
-		# and add the command to the $UNIX_NOTES_EXTENSION_COMMANDS array
-		if [[ " ${UNIX_NOTES_EXTENSION_COMMANDS[*]} " == *" ${COMP_WORDS[1]} "* ]] && type "__unix_notes_extension_complete_${COMP_WORDS[1]}" &> /dev/null; then
-			"__unix_notes_extension_complete_${COMP_WORDS[1]}"
+		# and add the command to the $UNIX_journal_EXTENSION_COMMANDS array
+		if [[ " ${UNIX_journal_EXTENSION_COMMANDS[*]} " == *" ${COMP_WORDS[1]} "* ]] && type "__unix_journal_extension_complete_${COMP_WORDS[1]}" &> /dev/null; then
+			"__unix_journal_extension_complete_${COMP_WORDS[1]}"
 		fi
 	else
 		COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
-	#	_notes_complete_entries 1
+	#	_journal_complete_entries 1
 	fi
 }
 
-_notebook()
-{
-	COMPREPLY=()
-	local cur="${COMP_WORDS[COMP_CWORD]}"
-	local commands="list ls show default use add insert rename mv copy cp delete rm remove  ${UNIX_NOTES_EXTENSION_COMMANDS[*]}"
-	if [[ $COMP_CWORD -gt 1 ]]; then
-		local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
-		case "${COMP_WORDS[1]}" in
-			use|default|cp|copy|mv|rename|rm|remove|delete)
-				_notebook_complete_folders
-				;;
-		esac
 
-		if [[ " ${UNIX_NOTES_EXTENSION_COMMANDS[*]} " == *" ${COMP_WORDS[1]} "* ]] && type "__unix_notes_extension_complete_${COMP_WORDS[1]}" &> /dev/null; then
-			"__notes_extension_complete_${COMP_WORDS[1]}"
-		fi
-	else
-		COMPREPLY+=($(compgen -W "${commands}" -- ${cur}))
-	fi
-}
-
-complete -o filenames -F _notes notes
-complete -o filenames -F _notebook notebook
+complete -o filenames -F _journal journal
 

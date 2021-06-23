@@ -44,10 +44,14 @@ prep:  clean
 	mkdir -p $(PKGMANDIR)
 	mkdir -p $(PKGBASHCOMPLETE)
 	sudo install -o root -m 755 $(PROGROOT)/notes $(PKGBINDIR)
+	sudo install -o root -m 755 $(PROGROOT)/notebook $(PKGBINDIR)
+	sudo install -o root -m 755 $(PROGROOT)/journal $(PKGBINDIR)
 	sudo install -o root -m 644 $(PROGROOT)/docs/notes.1 $(PKGMANDIR)
 	sudo install -o root -m 644 $(PROGROOT)/docs/notebook.1 $(PKGMANDIR)
+	sudo install -o root -m 644 $(PROGROOT)/docs/journal.1 $(PKGMANDIR)
 	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/notes
 	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/notebook
+	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/journal
 	install control $(DEBIAN)
 	cd $(PKGBINDIR); ln -sf  notes notebook
 

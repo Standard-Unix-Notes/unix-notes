@@ -2,13 +2,9 @@
 
 ## Supported Versions
 
-We support the following versions of this application:
-
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.8	  | :white_check_mark: |
-| 1.6     | :white_check_mark: |
-| 1.0     | :white_check_mark: |
+We support the current version of this application. If you find an issue 
+please upgrade to the latest version to see if the bug has been fixed 
+PRIOR to creating an ISSUE.
 
 
 ## Reporting a Vulnerability

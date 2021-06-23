@@ -1,6 +1,11 @@
 #		     STANDARD(?) UNIX NOTES
-	
 #			RELEASE NOTES
+
+2.0 	
+	- Added journal(1) for managing journals
+	- documentation reorganisation
+	- a number of minor fixes
+	- changes to makefile package builds
 
 1.8	
 	- Added Bash completion 

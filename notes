@@ -21,6 +21,8 @@ CONFIGFILE="${NOTESDIR}/config"
 INITIAL_NOTEBOOK="${NOTESDIR}/notes"
 DEFAULT_POINTER="${NOTESDIR}/DEFAULT"
 USE_POINTER="${NOTESDIR}/USE"
+DIRFORDIARY="${NOTESDIR}/Journal"
+JOURNALDIR="${JOURNALDIR:-$DIRFORDIARY}"
 GPGKEY=''
 GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
@@ -56,6 +58,9 @@ cmd_init (){		# setup directories and GPG key  to be used
 			ln -s "`basename $INITIAL_NOTEBOOK`" "$USE_POINTER" 
 		fi
 	fi
+
+	echo "Creating Journal directory ${JOURNALDIR} "
+	mkdir -p $JOURNALDIR
 }
 
 create_config () {
@@ -343,13 +348,19 @@ cmd_extension_or_show () {
 }
 
 cmd_usage () {
+    case $PROGRAM in 
+		"notes")    notes_usage;;
+		"notebook") notebook_usage;;
+	esac
+
+}
+
+notes_usage () {
 cat << ENDHELP
 
 		Standard (?) Unix Notes system
 
 GPG encrypted notes system for BSD and Linux systems
-
-SYSTEM:
 
 	notes init          initialise notes system
 	notes config        display config file
@@ -357,9 +368,7 @@ SYSTEM:
 	notes help          show help
 	notes version       show version
 
-NOTES MANAGEMENT:
-
-	notes find|search                       find note
+	notes find|search|grep                  find note
 	notes show|ls|list                      list notes in current notebook
 	notes insert|add        note_title      add a note
 	notes view|cat          note_title      view a note
@@ -369,8 +378,24 @@ NOTES MANAGEMENT:
 	notes delete|remove|rm  note_title    	delete a note
 	notes edit|ed           note_title      edit a note in default editor
 
-NOTEBOOK MANAGEMENT:
-	
+See notebook(1) or run 'notebook help' for details on managing notebooks
+See journal(1) or run 'journal help' for details on the journal/diary feature	
+
+ENDHELP
+}
+
+
+notebook_usage () {
+cat << ENDHELP
+
+		Standard (?) Unix Notes system
+
+GPG encrypted notes system for BSD and Linux systems
+
+	notebook help                           show help 
+	notebook version                        show version
+	notebook config                         show config
+
 	notebook list|ls|show                   list notebooks
 	notebook default           notebook     change default notebook
 	notebook use              [notebook]    use notebook (no notebook: uses default)
@@ -379,6 +404,9 @@ NOTEBOOK MANAGEMENT:
 	notebook copy|cp           notebook     copy notebook (prompts for new name)
 	notebook delete|remove|rm  notebook     delete notebook
 	
+See notes(1) or run 'notes help' for details on managing notes
+See journal(1) or run 'journal help' for details on the journal/diary feature	
+
 ENDHELP
 }
 
@@ -398,10 +426,11 @@ cmd_config () {
 	echo ""
 	echo The DEFAULT notebook is `ls -l $DEFAULT_POINTER  | cut -d' ' -f9-`
 	echo The USE notebook is  `ls -l $USE_POINTER  | cut -d' ' -f9- `
+	echo The Journal uses the directory $JOURNALDIR
 }
 
 cmd_tree () {
-    tree  ${NOTESDIR} 
+    tree  -I Journal  ${NOTESDIR}  
 }
 
 cmd_view () {
@@ -475,10 +504,6 @@ cmd_copy_move () {
 		"notes")    note_rename $myoptions;;
 		"notebook") notebook_rename ${myoptions};;
 	esac
-}
-
-cmd_grep () {
-	echo grep
 }
 
 cmd_git () {
@@ -608,8 +633,7 @@ case "$1" in
         version|--version) shift;       cmd_version "$@" ;;
         show|ls|list) shift;            cmd_show "$@" ;;
         view|cat) shift;        	cmd_view "$@" ;;
-        find|search) shift;             cmd_find "$@" ;;
-        grep) shift;                    cmd_grep "$@" ;;
+        find|search|grep) shift;        cmd_find "$@" ;;
         insert|add) shift;              cmd_insert "$@" ;;
         import) shift;              	cmd_import "$@" ;;
         edit|ed|-e) shift;              cmd_edit "$@" ;;
