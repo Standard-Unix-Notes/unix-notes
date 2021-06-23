@@ -49,9 +49,9 @@ prep:  clean
 	sudo install -o root -m 644 $(PROGROOT)/docs/notes.1 $(PKGMANDIR)
 	sudo install -o root -m 644 $(PROGROOT)/docs/notebook.1 $(PKGMANDIR)
 	sudo install -o root -m 644 $(PROGROOT)/docs/journal.1 $(PKGMANDIR)
-	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/notes
-	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/notebook
-	sudo install -o root -m 644 $(PROGROOT)/bash-completions $(PKGBASHCOMPLETE)/journal
+	sudo install -o root -m 644 $(PROGROOT)/bash/notes $(PKGBASHCOMPLETE)/notes
+	sudo install -o root -m 644 $(PROGROOT)/bash/notebook $(PKGBASHCOMPLETE)/notebook
+	sudo install -o root -m 644 $(PROGROOT)/bash/journal $(PKGBASHCOMPLETE)/journal
 	install control $(DEBIAN)
 	cd $(PKGBINDIR); ln -sf  notes notebook
 
