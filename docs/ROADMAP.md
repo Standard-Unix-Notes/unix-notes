@@ -3,7 +3,7 @@
 				
 				ROADMAP
 
-2.1 Migrate to ascii encoded GPG files (see RELEASE-NOTES.md)
+2.2 Migrate to ascii encoded GPG files (see RELEASE-NOTES.md)
 
 2.0 Journal functionality and other fixes 
 
@@ -39,7 +39,6 @@
 IN NEXT RELEASE (IMPLEMENTED)
 
 FUTURE FEATURES
-	- dedicated diary/journal function
 	- spell checking before encryption using aspell
 	- multiuser encryption
 	- different gpg keys per notebook
