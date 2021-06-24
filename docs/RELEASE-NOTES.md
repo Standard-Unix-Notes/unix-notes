@@ -1,7 +1,7 @@
 #		     STANDARD(?) UNIX NOTES
 #			RELEASE NOTES
 
-2.1
+2.2
 	- Migrated to ascii encoded notes. 
 	- To migrate old files just run 'notes newkey <KEYID>' 
 	  where  KEYID is your existing key from 'config'
