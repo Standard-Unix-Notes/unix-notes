@@ -113,7 +113,7 @@ journal_add () {
 
 	get_recipient
 
-	$GPG -e -r $KEY $GPG_OPTS $TODAY
+	$GPG -ear $KEY $GPG_OPTS $TODAY
 
 	rm $TODAY
 }
@@ -137,7 +137,7 @@ journal_import () {
 	if [ -f "${toimport}" ] ; then 
 		cat ${toimport} >> ${TODAY}
 		echo "" >> ${TODAY}
-		$GPG -e -r $KEY $GPG_OPTS  "${TODAY}" 
+		$GPG -ear $KEY $GPG_OPTS  "${TODAY}" 
 	else
 		echo  ${toimport} does not exist
 		exit 1
@@ -190,7 +190,7 @@ journal_edit () {
 
 	get_recipient
 
-	$GPG -e -r $KEY $GPG_OPTS $BASETARGET
+	$GPG -ear $KEY $GPG_OPTS $BASETARGET
 
 	rm $BASETARGET
 }
@@ -347,7 +347,7 @@ cmd_newkey () {
         do 
             echo $filen; 
             gpg -o "${filen}" --yes -d "${filen}.gpg" 
-            gpg -r ${mynewkey} --yes -e "${filen}"  && ${SHREDCMD} "${filen}"
+            gpg -ear ${mynewkey} --yes "${filen}"  && ${SHREDCMD} "${filen}"
             
         done
    
