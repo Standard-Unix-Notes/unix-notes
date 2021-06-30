@@ -192,6 +192,10 @@ will default to \fBnano\fP.
 By default notes creates it's notes directory in ~/.notes for the user. This can be 
 changed by modifying the shell script.
 
+Notes will find the GNU shred command if available using the options 
+--remove=wipe. If shred is not installed then it will default to using 
+the rm command.
+
 .SH FILES
 
 The following files are found in the notes directory (~/.notes by default):
