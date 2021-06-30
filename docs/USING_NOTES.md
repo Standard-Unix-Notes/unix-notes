@@ -51,6 +51,10 @@ $ ykman openpgp set-touch enc cached
 ```
 
 
+## Sub-command backup
+
+Backup your notes and journal entries to a GPG encrypted tar file (in $HOME)
+
 ## Sub-command add | insert
 
 To add a note simply issue the command

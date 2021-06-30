@@ -1,6 +1,10 @@
 #		     STANDARD(?) UNIX NOTES
 #			RELEASE NOTES
 
+2.4 
+	- Added backup sub-command (creates GnuPG encrypted 
+	  tarball in HOME)
+
 2.3
 	- Added GNU shred(1) for file deletion where available
 	- fixed bug #26 (wrong extension for 'edit' -> .asc)

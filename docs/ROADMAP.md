@@ -3,6 +3,8 @@
 				
 				ROADMAP
 
+2.4 Added backup sub command
+
 2.3 Use GNU shred(1) where available
 
 2.2 Migrate to ascii encoded GPG files (see RELEASE-NOTES.md)
@@ -48,6 +50,5 @@ FUTURE FEATURES
 	- zsh completion
 	- FreeBSD .PKG packaging
 	- FreeBSD ports configuration
-    	- encrypted backup/restore
     	- PIV card support
     	- Issue #17 BUG - import truncates filename if spaces in filename

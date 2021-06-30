@@ -28,7 +28,8 @@ GPG_OPTS=" --quiet --yes --compress-algo=none --no-encrypt-to"
 GPG="gpg"
 EDITOR="${EDITOR:-nano}"
 PAGER="${PAGER:-more}"
-
+TIMESTAMP="`date \"+%Y%m%d_%H%M\"`"
+BACKUPFILE="${HOME}/unix-notes-backup-${TIMESTAMP}.tar.asc"
 # Use shred if available
 SHRED="`which shred`"
 if [ $? = 0 ]; then 
@@ -370,6 +371,7 @@ GPG encrypted notes system for BSD and Linux systems
 
 	notes init          initialise notes system
 	notes config        display config file
+    notes backup        backup $NOTESDIR to GPG encrypted tar file
 	notes newkey email  change GPG key 
 	notes help          show help
 	notes version       show version
@@ -433,6 +435,14 @@ cmd_config () {
 	echo The DEFAULT notebook is `ls -l $DEFAULT_POINTER  | cut -d' ' -f9-`
 	echo The USE notebook is  `ls -l $USE_POINTER  | cut -d' ' -f9- `
 	echo The Journal uses the directory $JOURNALDIR
+}
+
+cmd_backup () {
+
+    get_recipient
+
+    echo running tar backup to $BACKUPFILE
+    tar cv ${NOTESDIR} | gpg -ear ${KEY} ${GPGOPTS} > ${BACKUPFILE}
 }
 
 cmd_tree () {
@@ -630,6 +640,7 @@ COMMAND="$1"
 case "$1" in
         init) shift;                    cmd_init "$@" ;;
         config) shift;                  cmd_config "$@" ;;
+        backup) shift;                  cmd_backup ;;
         tree) shift;                  	cmd_tree ;;
         licence|license) shift;         cmd_licence "$@" ;;
         default) shift;                 cmd_default "$@" ;;

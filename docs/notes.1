@@ -85,6 +85,14 @@ Displays the config file
 ~/.notes/config
 to the terminal. This is a quick way of determining that GPG KeyID is in use.
 
+.SY backup
+.YS
+
+Backup your notes directory to a GPG encrypted tar file placed in your 
+$HOME directory. Backups can be tested using the following command:
+
+    $ gpg -d ~/unix-notes-backup-20210630_1503.tar.asc | tar tv 
+
 .SY help
 .YS
 Displays a quick help page displaying available commands.
