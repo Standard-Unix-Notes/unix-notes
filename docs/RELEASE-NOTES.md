@@ -1,6 +1,11 @@
 #		     STANDARD(?) UNIX NOTES
 #			RELEASE NOTES
 
+2.5
+	- Added spelling check to 'add' and 'edit' sub-commands
+	- Added prompt in config commands for choice of spelling 
+	  checker
+
 2.4 
 	- Added backup sub-command (creates GnuPG encrypted 
 	  tarball in HOME)

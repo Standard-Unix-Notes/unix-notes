@@ -3,6 +3,8 @@
 				
 				ROADMAP
 
+2.5 Added spelling check to 'add' and 'edit' sub-commands
+
 2.4 Added backup sub command
 
 2.3 Use GNU shred(1) where available

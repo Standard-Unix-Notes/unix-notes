@@ -55,6 +55,20 @@ config file.
 From version 1.8 onwards Notes/Notebook support Bash completion for sub 
 commands and note/notebook filenames.
 
+.SH SPELL CHECKING
+
+Notes(1) can be configured to use aspell(1) or ispell(1) to check the 
+spelling of the decrypted file during the \fBadd\fP and \fBedit\fP 
+sub-commands.
+
+To change spell checkers edit \fBspelling=\fP the config file to have 
+one of the following: 
+.RS 
+.IP spelling=aspell
+.IP spelling=ispell
+.IP spelling=none
+.RE
+
 .SH COMMANDS 
 
 The notes program takes a set of commands that allows the user to manipulate the 

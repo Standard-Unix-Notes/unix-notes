@@ -38,7 +38,26 @@ else
     SHREDCMD="rm"
 fi
 
-#
+SPELLCHECK=`grep spelling $CONFIGFILE | cut -d'=' -f 2`
+
+spellcheck () {
+    case ${SPELLCHECK} in 
+        aspell) 
+            SPELLINGCMD="aspell -x -c " 
+            ${SPELLINGCMD} ${notefile}
+            ;;
+        ispell) 
+            SPELLINGCMD="ispell -x " 
+            ${SPELLINGCMD} ${notefile}
+            ;;
+        none) 
+            ;;
+        *) 
+            echo Invalid config option `grep "spellcheck" ${CONFIGFILE}`
+    esac
+}
+
+
 # initialise notes system
 #
 
@@ -90,6 +109,23 @@ create_config () {
 
 	KEY="`gpg -K  --with-colons | grep fpr | head -1 | tr -d 'fpr:::::::::' `"
 	echo "KEY	$KEY" > $CONFIGFILE
+
+    echo Do you want spellchecking enabled?
+    echo "1) Use aspell"
+    echo "2) Use ispell"
+    echo "3) Do not spellcheck"
+    read -p "Choose 1,2,or 3: " choosespell
+    case $choosespell in
+        1)
+            echo "spelling=aspell" >> $CONFIGFILE
+            ;;
+        2)
+            echo "spelling=ispell" >> $CONFIGFILE
+            ;;
+        *)
+            echo "spelling=none" >> $CONFIGFILE
+            ;;
+    esac
 
 	echo Default config written:
 	cat  $CONFIGFILE
@@ -165,7 +201,7 @@ note_add () {
 		# create temporary note file
 		$EDITOR "$notefile"
 
-		#aspell -c "$notefile"
+        spellcheck
 
 		# encrypt note file
 		$GPG -ear $KEY $GPG_OPTS  "$notefile"
@@ -213,11 +249,13 @@ note_edit () {
 	if [ -f "$notefile" ]; then 
 		gpg -d -o "${decrypted}" "${notefile}" 
 		${EDITOR} "${decrypted}" 
+        spellcheck
 		$GPG -ear $KEY $GPG_OPTS  "${decrypted}"
 		${SHREDCMD} ${decrypted}
 	elif [ -f "${notefile}.asc" ]; then 
 		gpg -d -o "${decrypted}"  "${notefile}.asc" 
 		${EDITOR} "${decrypted}" 
+        spellcheck
 		$GPG -ear $KEY $GPG_OPTS  "${decrypted}"
 		${SHREDCMD} ${decrypted}
 	else 
@@ -371,7 +409,7 @@ GPG encrypted notes system for BSD and Linux systems
 
 	notes init          initialise notes system
 	notes config        display config file
-    notes backup        backup $NOTESDIR to GPG encrypted tar file
+	notes backup        backup $NOTESDIR to GPG encrypted tar file
 	notes newkey email  change GPG key 
 	notes help          show help
 	notes version       show version

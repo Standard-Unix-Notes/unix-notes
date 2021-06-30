@@ -12,6 +12,12 @@ note* you will create 'my_new_note'.
 If available *notes* will use GNU shred(1) to delete any temporary 
 files. If unavailable it will default back to rm(1).
 
+## Spelling
+
+Unix Notes can be configured to use aspell(1), ispell(1) or 'none' using 
+the *spelling=* directive in the *config* file. This setting is 
+configured in the *init* sub-command on first run.
+
 ## Sub-command config
 
 Displays the 'config' file and also the DEFAULT and USE (current) 
