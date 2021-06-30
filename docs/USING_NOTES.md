@@ -18,6 +18,15 @@ Unix Notes can be configured to use aspell(1), ispell(1) or 'none' using
 the *spelling=* directive in the *config* file. This setting is 
 configured in the *init* sub-command on first run.
 
+## Sub-command init
+
+Setup the $NOTESDIR directory for your notes, notebooks and journal. 
+
+If you use *notes init git* then notes(1) will also configure this 
+directory as a local git repository to commit changes to. You may 
+manually add an upstream repo if you want to use git to sync between 
+machines.
+
 ## Sub-command config
 
 Displays the 'config' file and also the DEFAULT and USE (current) 

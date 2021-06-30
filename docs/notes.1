@@ -92,6 +92,9 @@ The program then examines your GPG keyring for private keys. It then adds the fi
 KeyID to your "config" file for later use. With each command issued the program will use 
 this key for any encryption needed.
 
+If you run \fBnotes init git\fP then notes(1) will also setup $NOTESDIR 
+as a git repo and commit to it on every change.
+
 .SY config
 .YS
 Displays the config file

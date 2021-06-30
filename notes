@@ -220,7 +220,7 @@ note_add () {
 		# create temporary note file
 		$EDITOR "$notefile"
 
-        spellcheck
+		spellcheck
 
 		# encrypt note file
 		$GPG -ear $KEY $GPG_OPTS  "$notefile"
@@ -538,7 +538,6 @@ cmd_config () {
 cmd_gitlog () {
 	${GITLOG}
 }
-
 
 cmd_gitstatus () {
 	${GITSTATUS}

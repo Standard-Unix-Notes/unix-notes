@@ -80,6 +80,9 @@ replace the keyid automatically in the config file.
 
 Journal entries can be backed up using the backup sub-command of notes(1).
 
+If git is configured for the notes(1) $NOTESDIR directory then 
+journal(1) will apply git commits as it changes files.
+
 .SH SHELL INTEGRATION
 
 Standard Unix Notes system supports bash completion for notes(1), 
@@ -154,18 +157,19 @@ You may choose to supply a 4-digit year to specify a year other than the current
 .YS
 Import a text file into a journal entry, encrypting the note as it is imported.
 
-.SY "rename|mv  [filename]"
-.YS
-Rename the specified journal file. The program prompts the user for a new name.
-Original encrypted journal entry is NOT decrypted in the process. 
-
-.SY "copy|cp [YYYY] [filename]" 
+.SY "rename|mv [YYYY]/[filename]" 
 .YS 
-Duplicate a journal file. The user will be prompted for a new date to 
-name the file. This is useful for those wanting to use template files or 
-just for regular duplication.
+Rename the specified journal file (in the same year). The program 
+prompts the user for a new name. Original encrypted journal entry is NOT 
+decrypted in the process.
 
-.SY "delete|rm  [filename]"
+.SY "copy|cp [YYYY]/[filename]" 
+.YS 
+Duplicate a journal file (in the same year). The user will be prompted 
+for a new date to name the file. This is useful for those wanting to use 
+template files or just for regular duplication.
+
+.SY "delete|rm  [YYYY]/[filename]"
 .YS
 Delete a journal file. 
 

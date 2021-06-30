@@ -34,13 +34,19 @@ JOURNALNAME="`date "+%B_%d"`"
 TODAY="${JOURNALDIR}/${YEAR}/${JOURNALNAME}"
 ENCRYPTEDTARGET="${TODAY}.asc"
 TIMESTAMP="`date \"+%B %d, %Y.  %H:%M\"`"
+GITCMD="git -C ${NOTESDIR} "
+GITADD="git -C ${NOTESDIR} add "
+GITCOMMIT="git -C ${NOTESDIR} commit -m "
+GITLOG="git -C ${NOTESDIR} log"
+GITSTATUS="git -C ${NOTESDIR} status"
+USEGIT=`grep git ${CONFIGFILE}| cut -d'=' -f 2`
 
 # Use shred if available
 SHRED="`which shred`"
 if [ $? = 0 ]; then 
-    SHREDCMD="${SHRED} --remove=wipe"
+	SHREDCMD="${SHRED} --remove=wipe"
 else
-    SHREDCMD="rm"
+	SHREDCMD="rm"
 fi
 
 #
@@ -57,49 +63,47 @@ get_recipient () {
 }
 
 get_gpg_keyid () {
-    newkeyid="$1"
-    echo newkeyid supplied $newkeyid
+	newkeyid="$1"
+	echo newkeyid supplied $newkeyid
 
-    if [ "$newkeyid" != "" ] ; then
-
-        validate_gpg_keyid  $newkeyid
-
-        echo valid gpg key $newkeyid
-    else
-        echo No key supplied:  
-        exit 1
-    fi
+	if [ "$newkeyid" != "" ] ; then
+		validate_gpg_keyid  $newkeyid
+		echo valid gpg key $newkeyid
+	else
+		echo No key supplied:  
+		exit 1
+	fi
 
 }
 
 validate_gpg_keyid () {
-    testkey="$1"
-    keyids="/tmp/keyids.$$"
+	testkey="$1"
+	keyids="/tmp/keyids.$$"
 
-    gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
+	gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5 > $keyids
 
-    # test key character length = the last 16 (short) or the full 40 (long) are acceptable
-    case ${#testkey} in
-        16|40) 
-            shortkey="`echo ${testkey} | tail -c 17`"
-            if [ "`grep ${shortkey} ${keyids}`" = "0" ] ; then
-                echo Invalid GPG keyid
-                cat $keyids
-                echo \n\n Type 'gpg -k <keyid> to find out more about key'
-                ${SHREDCMD} $keyids
-                exit 1
-            else 
-                echo Valid key $testkey
-            fi
-            ;;
-        *)  
-            echo Provided key is invalid: keys should be 16 or 40 characters
-            echo Valid keys are ...
-            cat $keyids
-            echo \n\n Type 'gpg -k <keyid> to find out more about key'
-            ${SHREDCMD} $keyids
-            exit 1;;
-    esac
+	# test key character length = the last 16 (short) or the full 40 (long) are acceptable
+	case ${#testkey} in
+		16|40) 
+			shortkey="`echo ${testkey} | tail -c 17`"
+			if [ "`grep ${shortkey} ${keyids}`" = "0" ] ; then
+				echo Invalid GPG keyid
+				cat $keyids
+				echo \n\n Type 'gpg -k <keyid> to find out more about key'
+				${SHREDCMD} $keyids
+				exit 1
+			else 
+				echo Valid key $testkey
+			fi
+			;;
+		*)  
+			echo Provided key is invalid: keys should be 16 or 40 characters
+			echo Valid keys are ...
+			cat $keyids
+			echo \n\n Type 'gpg -k <keyid> to find out more about key'
+			${SHREDCMD} $keyids
+			exit 1;;
+	esac
 }
 
 
@@ -108,7 +112,6 @@ validate_gpg_keyid () {
 #
 
 journal_add () {
-
 	mkdir -p ${JOURNALDIR}/${YEAR}
 
 	if [ -f  "${ENCRYPTEDTARGET}" ]; then
@@ -124,10 +127,14 @@ journal_add () {
 	$GPG -ear $KEY $GPG_OPTS $TODAY
 
 	${SHREDCMD} $TODAY
+
+	if [ "$USEGIT" = "y" ]; then
+		${GITADD} ${NOTESDIR}
+		${GITCOMMIT} "Added journal entry"
+	fi
 }
 
 journal_import () {
-
 	mkdir -p ${JOURNALDIR}/${YEAR}
 
 	if [ -f  "${ENCRYPTEDTARGET}" ]; then
@@ -152,10 +159,14 @@ journal_import () {
 	fi
 
 	${SHREDCMD} ${TODAY}
+
+	if [ "$USEGIT" = "y" ]; then
+		${GITADD} ${NOTESDIR}
+		${GITCOMMIT} "Imported ${toimport} as journal entry"
+	fi
 }
 
 journal_view () {
-
 	VIEWOPTIONS="$@"
 
 	if [ "$VIEWOPTIONS" != "" ]; then 
@@ -173,11 +184,8 @@ journal_view () {
 }
 
 journal_edit () {
-
-    VIEWOPTIONS="$@"
-
+	VIEWOPTIONS="$@"
 	mkdir -p ${JOURNALDIR}/${YEAR}
-
 
 	if [ "$VIEWOPTIONS" != "" ]; then 
 		TARGET="${VIEWOPTIONS}"
@@ -185,11 +193,10 @@ journal_edit () {
 		TARGET="${ENCRYPTEDTARGET}"
 	fi 
 
-    BASETARGET="`echo $TARGET | sed s/.asc//`"
-
+	BASETARGET="`echo $TARGET | sed s/.asc//`"
 	if [ -f  "${TARGET}" ]; then
 		gpg  -o ${BASETARGET} -d "${TARGET}"  
-    else
+	else
             echo No journal file for $TARGET
             exit 1
 	fi
@@ -201,66 +208,84 @@ journal_edit () {
 	$GPG -ear $KEY $GPG_OPTS $BASETARGET
 
 	${SHREDCMD} $BASETARGET
+
+	if [ "$USEGIT" = "y" ]; then
+		${GITADD} ${NOTESDIR}
+		${GITCOMMIT} "Edited journal entry"
+	fi
 }
 
 journal_list () {
-    
-    YEAROPTION="$@"
-    
-    if [ "$YEAROPTION" = "" ]; then
-        echo ${YEAR}:
-        ls  ${JOURNALDIR}/${YEAR} | column
-        echo ""
-        exit 0
-    fi
+	YEAROPTION="$@"
 
-    if [ -d "${JOURNALDIR}/${YEAROPTION}" ]; then
-        echo ${YEAROPTION}:
-        ls ${JOURNALDIR}/${YEAROPTION} | column
-        echo ""
-    else
-        echo Supplied year $YEAROPTION does not exist. 
-    fi
+	if [ "$YEAROPTION" = "" ]; then
+		echo ${YEAR}:
+		ls  ${JOURNALDIR}/${YEAR} | column
+		echo ""
+		exit 0
+	fi
+
+	if [ -d "${JOURNALDIR}/${YEAROPTION}" ]; then
+		echo ${YEAROPTION}:
+		ls ${JOURNALDIR}/${YEAROPTION} 2> /dev/null | column
+		echo ""
+	else
+		echo Supplied year $YEAROPTION does not exist. 
+	fi
 }
 
 journal_delete () {
-	
 	TARGET="$@"
+	TARGETROOT="`echo ${TARGET} | sed s/.asc//`"
 	
-	if [ -f  "${TARGET}" ]; then
-		${SHREDCMD} ${TARGET}
+	if [ -f  "${JOURNALDIR}/${TARGETROOT}.asc" ]; then
+		${SHREDCMD} ${JOURNALDIR}/${TARGETROOT}.asc
 	else
 		echo ${TARGET} does not exist
 		exit 1
+	fi
+
+	if [ "$USEGIT" = "y" ]; then
+		${GITADD} ${NOTESDIR} > /dev/null
+		${GITCOMMIT} "Deleted journal entry" > /dev/null
 	fi
 }
 
 journal_rename () {
-
 	TARGET="$@"
+	TARGETROOT="`echo ${TARGET} | sed s/.asc//`"
 
-	if [ -f "${TARGET}" ]; then
+	if [ -f "${JOURNALDIR}/${TARGETROOT}.asc" ]; then
 		read -p "Please enter new name for journal entry: "  newname
-		mv ${TARGET} ${JOURNALDIR}/${YEAR}/${newname}
-
+		newnameroot="`echo ${newname} | sed s/.asc//`"
+		mv ${JOURNALDIR}/${TARGETROOT}.asc  ${JOURNALDIR}/${YEAR}/${newnameroot}.asc
 	else
 		echo ${TARGET} does not exist
 		exit 1
 	fi
+
+	if [ "$USEGIT" = "y" ]; then
+		${GITADD} ${NOTESDIR} > /dev/null
+		${GITCOMMIT} "Renamed journal entry ${TARGET} to ${newname}" > /dev/null 
+	fi
 }
 
 journal_copy () {
-
 	TARGET="$@"
+	TARGETROOT="`echo ${TARGET} | sed s/.asc//`"
 
-	echo TARGET = $TARGET
-
-	if [ -f "${TARGET}" ]; then
+	if [ -f "${JOURNALDIR}/${TARGET}" ]; then
 		read -p "Please enter new name to copy journal entry to: " newname
-		cp ${TARGET} ${JOURNALDIR}/${YEAR}/${newname}
+		newnameroot="`echo ${newname} | sed s/.asc//`"
+		cp ${JOURNALDIR}/${TARGETROOT}.asc  ${JOURNALDIR}/${YEAR}/${newnameroot}.asc
 	else 
 		echo ${TARGET} does not exist
 		exit 1
+	fi
+
+	if [ "$USEGIT" = "y" ]; then
+		${GITADD} ${NOTESDIR} > /dev/null
+		${GITCOMMIT} "Copied journal entry ${TARGET} to ${newname}" > /dev/null
 	fi
 }
 
@@ -268,13 +293,20 @@ journal_copy () {
 #
 # OTHER COMMANDS
 #
+cmd_gitlog () {
+	${GITLOG}
+}
+
+cmd_gitstatus () {
+	${GITSTATUS}
+}
 
 journal_extension_or_show () {
 	journal_usage
 }
 
 journal_usage () {
-cat << ENDHELP
+	cat << ENDHELP
 
 		Standard (?) Unix Notes system
 
@@ -322,7 +354,7 @@ journal_config () {
 }
 
 journal_tree () {
-    tree  ${JOURNALDIR} 
+	tree  ${JOURNALDIR} 
 }
 
 journal_find () {
@@ -336,20 +368,20 @@ journal_find () {
 }
 
 cmd_newkey () {
-    mynewkey="$1"
+	mynewkey="$1"
 
-    if [ "$mynewkey" = "" ]; then
-        echo No new key supplied
-        echo There are the following private keys on your keyring
-        gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5
-        exit 1
-    fi
+	if [ "$mynewkey" = "" ]; then
+		echo No new key supplied
+		echo There are the following private keys on your keyring
+		gpg --list-secret-keys --with-colons --keyid-format short | grep sec | cut -d':' -f 5
+		exit 1
+	fi
 
 	get_recipient
-    get_gpg_keyid   $mynewkey
+	get_gpg_keyid   $mynewkey
 
-    # now recrypt files 
-    find ~/.notes -name \*.asc | sed s/.asc// | \
+	# now recrypt files 
+	find ~/.notes -name \*.asc | sed s/.asc// | \
 
         while read filen ; 
         do 
@@ -359,12 +391,12 @@ cmd_newkey () {
             
         done
    
-    # replace key in config file
-    sed -i s/^KEY.*$/KEY\\t${mynewkey}/   ${CONFIGFILE}
+	# replace key in config file
+	sed -i s/^KEY.*$/KEY\\t${mynewkey}/   ${CONFIGFILE}
 }
 
 journal_licence () {
-    ${PAGER} <<EOF
+	${PAGER} <<EOF
 BSD 3-Clause License
 
 Copyright (c) 2021, Standard-Unix-Notes
@@ -410,6 +442,8 @@ COMMAND="$1"
 
 case "$1" in
         config) shift;                  journal_config "$@" ;;
+	log) shift;                     cmd_gitlog "$@" ;;
+        status) shift;                  cmd_status "$@" ;;
         tree) shift;                  	journal_tree ;;
         licence|license) shift;         journal_licence "$@" ;;
         newkey) shift;                  cmd_newkey "$@" ;;

@@ -24,7 +24,7 @@ _notes_complete_entries () {
 
     # code chunk below is fromthe original password store code
 	prefix="${prefix%/}/"
-	suffix=".gpg"
+	suffix=".asc"
 	autoexpand=${1:-0}
 
 	local IFS=$'\n'
@@ -88,7 +88,7 @@ _notes()
 {
 	COMPREPLY=()
 	local cur="${COMP_WORDS[COMP_CWORD]}"
-	local commands="init config newkey help version ls list show find search add insert view cat import rename mv copy  cp rm remove delete edit  ${UNIX_NOTES_EXTENSION_COMMANDS[*]}"
+	local commands="init config newkey help version backup log status ls list show find search add insert view cat import rename mv copy  cp rm remove delete edit  ${UNIX_NOTES_EXTENSION_COMMANDS[*]}"
 	if [[ $COMP_CWORD -gt 1 ]]; then
 		local lastarg="${COMP_WORDS[$COMP_CWORD-1]}"
 		case "${COMP_WORDS[1]}" in

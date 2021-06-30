@@ -9,6 +9,9 @@ file it should open for editing.
 
 Journal will use GNU shred(1) where available for deleting temporary files.
 
+If notes(1) was setup with the command *notes init git* then journal(1) 
+will make git commits for every change.
+
 ## Sub-command config
 
 Displays the 'config' file, where the Jrouanl files are kept and also 

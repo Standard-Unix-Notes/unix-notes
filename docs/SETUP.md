@@ -44,4 +44,11 @@ that point to the 'default' notebook and the 'currently using'
 notebook. Initially these will be pointing at the initial 'notes' 
 notebook.
 
+If you use the command 
 
+```shell
+$ notes init git
+```
+
+Notes(1) will also setup the $NOTESDIR as a local git repository and 
+will commit to the repo on every change.

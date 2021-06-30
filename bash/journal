@@ -28,7 +28,7 @@ _journal_complete_entries () {
 
     # code chunk below is fromthe original password store code
 	prefix="${prefix%/}/"
-	suffix=".gpg"
+	suffix=".asc"
 	autoexpand=${1:-0}
 
 	local IFS=$'\n'

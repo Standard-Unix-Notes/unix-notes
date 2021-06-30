@@ -1,6 +1,10 @@
 #		     STANDARD(?) UNIX NOTES
 #			RELEASE NOTES
 
+2.6
+	- Added git support for notes, notebooks and the journal
+	  (use 'notes init git' to setup)
+	
 2.5
 	- Added spelling check to 'add' and 'edit' sub-commands
 	- Added prompt in config commands for choice of spelling 
