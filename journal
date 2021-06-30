@@ -1,8 +1,10 @@
 #!/bin/sh    
 #
-#	STANDARD(?) UNIX NOTES 
+#	STANDARD(?) UNIX NOTES  - Journal application
 #
 # This is Unix Notes. An GPG encrypted notes system designed for privacy
+#
+# the journal(1) command manages encrypted journal files in the Journal notebook
 #
 # The idea came from 'pass' the standard Unix password manager
 
@@ -25,15 +27,21 @@ USE_POINTER="${NOTESDIR}/USE"
 GPGKEY=''
 GPG_OPTS="--quiet --yes --compress-algo=none --no-encrypt-to" 
 GPG="gpg"
-SHREDCMD="rm"
 EDITOR="${EDITOR:-nano}"
 PAGER="${PAGER:-more}"
-#SHREDCMD="shred"
 YEAR="`date "+%Y"`"
 JOURNALNAME="`date "+%B_%d"`"
 TODAY="${JOURNALDIR}/${YEAR}/${JOURNALNAME}"
-ENCRYPTEDTARGET="${TODAY}.gpg"
+ENCRYPTEDTARGET="${TODAY}.asc"
 TIMESTAMP="`date \"+%B %d, %Y.  %H:%M\"`"
+
+# Use shred if available
+SHRED="`which shred`"
+if [ $? = 0 ]; then 
+    SHREDCMD="${SHRED} --remove=wipe"
+else
+    SHREDCMD="rm"
+fi
 
 #
 # initialise notes system
@@ -78,7 +86,7 @@ validate_gpg_keyid () {
                 echo Invalid GPG keyid
                 cat $keyids
                 echo \n\n Type 'gpg -k <keyid> to find out more about key'
-                rm $keyids
+                ${SHREDCMD} $keyids
                 exit 1
             else 
                 echo Valid key $testkey
@@ -89,7 +97,7 @@ validate_gpg_keyid () {
             echo Valid keys are ...
             cat $keyids
             echo \n\n Type 'gpg -k <keyid> to find out more about key'
-            rm $keyids
+            ${SHREDCMD} $keyids
             exit 1;;
     esac
 }
@@ -115,7 +123,7 @@ journal_add () {
 
 	$GPG -ear $KEY $GPG_OPTS $TODAY
 
-	rm $TODAY
+	${SHREDCMD} $TODAY
 }
 
 journal_import () {
@@ -143,7 +151,7 @@ journal_import () {
 		exit 1
 	fi
 
-	rm ${TODAY}
+	${SHREDCMD} ${TODAY}
 }
 
 journal_view () {
@@ -177,7 +185,7 @@ journal_edit () {
 		TARGET="${ENCRYPTEDTARGET}"
 	fi 
 
-    BASETARGET="`echo $TARGET | sed s/.gpg//`"
+    BASETARGET="`echo $TARGET | sed s/.asc//`"
 
 	if [ -f  "${TARGET}" ]; then
 		gpg  -o ${BASETARGET} -d "${TARGET}"  
@@ -192,7 +200,7 @@ journal_edit () {
 
 	$GPG -ear $KEY $GPG_OPTS $BASETARGET
 
-	rm $BASETARGET
+	${SHREDCMD} $BASETARGET
 }
 
 journal_list () {
@@ -220,7 +228,7 @@ journal_delete () {
 	TARGET="$@"
 	
 	if [ -f  "${TARGET}" ]; then
-		rm -i ${TARGET}
+		${SHREDCMD} ${TARGET}
 	else
 		echo ${TARGET} does not exist
 		exit 1
@@ -320,7 +328,7 @@ journal_tree () {
 journal_find () {
 	searchterm="$@"
 
-	for file in `find ${JOURNALDIR} -name \*.gpg -print`
+	for file in `find ${JOURNALDIR} -name \*.asc -print`
 	do
 		gpg -d $file 2>/dev/null | grep -H --label "`basename ${file}`" "$searchterm" 
 
@@ -341,12 +349,12 @@ cmd_newkey () {
     get_gpg_keyid   $mynewkey
 
     # now recrypt files 
-    find ~/.notes -name \*.gpg | sed s/.gpg// | \
+    find ~/.notes -name \*.asc | sed s/.asc// | \
 
         while read filen ; 
         do 
             echo $filen; 
-            gpg -o "${filen}" --yes -d "${filen}.gpg" 
+            gpg -o "${filen}" --yes -d "${filen}.asc" 
             gpg -ear ${mynewkey} --yes "${filen}"  && ${SHREDCMD} "${filen}"
             
         done

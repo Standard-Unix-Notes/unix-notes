@@ -7,7 +7,7 @@ a help screen showing the sub-commands available.
 Journal(1) automatically selects today's date and year to work out which 
 file it should open for editing.
 
-
+Journal will use GNU shred(1) where available for deleting temporary files.
 
 ## Sub-command config
 

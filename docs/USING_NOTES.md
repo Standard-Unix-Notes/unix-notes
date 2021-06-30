@@ -9,6 +9,8 @@ Any note names specified in either the command line OR when prompted
 the spaces replaced with underscores. So if you enter *notes add my new 
 note* you will create 'my_new_note'.  
 
+If available *notes* will use GNU shred(1) to delete any temporary 
+files. If unavailable it will default back to rm(1).
 
 ## Sub-command config
 

@@ -1,6 +1,10 @@
 #		     STANDARD(?) UNIX NOTES
 #			RELEASE NOTES
 
+2.3
+	- Added GNU shred(1) for file deletion where available
+	- fixed bug #26 (wrong extension for 'edit' -> .asc)
+
 2.2
 	- Migrated to ascii encoded notes. 
 	- To migrate old files just run 'notes newkey <KEYID>' 
