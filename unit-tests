@@ -1,0 +1,273 @@
+#!/bin/sh 
+
+#
+#	UNIT TESTS FOR STANDARD(?) UNIX NOTES
+#
+
+if [ "${TESTKEY}" = "" ]; then
+        echo You need to setup \$TESTKEY to your GPG key to use 'unit-tests' script
+        exit 1
+fi
+
+# ALTGPGKEY is used to test the 'notes newkey' command with a second key
+ALTGPGKEY="${ALTGPGKEY:-${TESTKEY}}"
+
+echo Setting up test environment
+TESTDIR="`pwd`/tests"
+
+ERRORLOG="${TESTDIR}/error_log_for_unit_tests"
+rm $ERRORLOG
+
+log () {
+	echo $@ >>  $ERRORLOG
+}
+
+cat << EOF
+
+	Running unit tests for Standard(?) Unix Notes
+
+EOF
+
+createsample () {
+
+	SAMPLE="${USE_POINTER}/${1}.asc"
+	cat LICENCE | gpg -ear $TESTKEY -o ${SAMPLE}
+}
+
+
+pagebreak () {
+
+    cat << EOF
+
+=================================================================
+
+EOF
+}
+unit () {
+
+    shift &&  testdesc="$@"
+    pagebreak
+    
+    cat << EOF
+
+    Unit Test = ${testdesc}
+
+EOF
+}
+returned () {
+	echo "Function returned" $@
+}
+handle () {
+	echo Return Error = $?
+}
+
+trap handle 1 2 3 6 15
+
+
+rm -rf ${TESTDIR}/*
+echo TESTDIR = $TESTDIR
+NOTESDIR="${TESTDIR}/unit_test_dir"
+echo NOTESDIR = $NOTESDIR
+
+
+pagebreak
+
+. ./notes
+
+echo Return code from sourcing './notes' = $?
+
+#
+#	Unit Tests
+#
+
+unit Testing init function
+
+echo "2" | cmd_init
+returned $?
+
+echo "Fixing up $CONFIGFILE to use \$TESTKEY $TESTKEY"
+sed -i s/^KEY.*$/KEY\\t${TESTKEY}/   ${CONFIGFILE}
+cat $CONFIGFILE
+
+test ! -f $CONFIGFILE	  	&& log ERROR	create config file failed
+test ! -h $USE_POINTER		&& log ERROR	setup USE notebook link failed
+test ! -h $DEFAULT_POINTER 	&& log ERROR	setup DEFAULT notebook link failed
+test ! -d $INITIAL_NOTEBOOK	&& log ERROR	INITIAL_NOTEBOOK not created
+test ! -d $JOURNALDIR		&& log ERROR 	failed to create JOURNALDIR
+
+unit Testing config function
+
+cmd_config
+
+unit Testing add function
+
+MYNOTE="My Note Title"
+ALTMYNOTE="${USE_POINTER}/My_Note_Title.asc"
+
+if [ "$1" = "skip" ] ; then
+	echo skipping interactive tests i.e. note_add
+else
+	note_add ${MYNOTE}
+
+	test -f ${ALTMYNOTE} 	&& echo Created $ALTMYNOTE
+
+	test ! -f ${ALTMYNOTE}	&& log failed to create or encrypt note ${ALTMYNOTE}
+fi 
+
+unit Testing import function
+
+IMPNOTE="${USE_POINTER}/README.md.asc"
+
+note_import README.md
+
+test -f  ${IMPNOTE} 	&& echo Imported $IMPNOTE
+
+test ! -f ${IMPNOTE} 	&& log failed to import $IMPNOTE
+
+unit Testing rename function
+
+RENAMETEST="b4rename"
+AFTERTEST="afterrename"
+echo  Creating $RENAMETEST and then rename it 
+cat  LICENCE | gpg -ear $TESTKEY -o ${USE_POINTER}/${RENAMETEST}.asc
+
+echo $AFTERTEST | note_rename mv $RENAMETEST
+
+# notes(1) sets the variable $newname to the name of the new file 
+# as all notes(1) functions have been imported then $newname is 
+# still available
+TESTRENAMED="${USE_POINTER}/afterrename.asc"
+
+test -f $TESTRENAMED 	&&  echo  ${RENAMETEST}.asc renamed to ${newname}.asc
+
+test ! -f $TESTRENAMED 	&&  log ERROR: Failed to rename ${RENAMETEST}.asc to ${newname}.asc
+
+
+unit Testing copy function
+
+COPYTEST="b4copy"
+AFTERTEST="copy test"
+echo Creating $COPYTEST and then copy it 
+
+createsample ${COPYTEST}
+
+echo $AFTERTEST | note_rename cp $COPYTEST
+tree test
+COPIEDTEST="${USE_POINTER}/copy_test.asc"
+
+test -f $COPIEDTEST 	&&  echo  ${COPYTEST}.asc copied to ${newname}.asc 
+
+test ! -f $COPIEDTEST	&&  log ERROR: Failed to copy ${COPYTEST}.asc to ${newname}.asc 
+
+unit Testing copy file not exist
+
+NOTEXIST="not_a_note"
+
+AFTERTEST="copy not exist"
+echo $AFTERTEST | note_rename cp $NOTEXIST
+
+test ! $? = 1  	&&  log Error in note_rename .. should exit with 1 when copying non-existing note
+echo Return code $?
+
+# unit Testing delete function 
+
+#
+# notebook function testing
+#
+
+unit Testing add notebook
+NEWNOTEBOOK="${NOTESDIR}/testing"
+notebook_add  testing
+
+test ! -d  $NEWNOTEBOOK && log Failed to create new notebook $NEWNOTEBOOK
+
+
+unit  Testing delete notebook
+
+DELNB="book_2b_del"
+
+notebook_add  $DELNB
+
+notebook_delete $DELNB
+test -d ${NOTESDIR}/$DELNB 	&& log ERROR: Failed to delete notebook
+
+
+unit Testing notebook_rename mv 
+
+BEFORE="old_notebook"
+AFTER="new_notebook_name"
+
+notebook_add $BEFORE
+
+echo $AFTER  | notebook_rename mv  $BEFORE
+
+test ! -d  ${NOTESDIR}/$AFTER 	&& 	log notebook_rename\(\) failed to rename $BEFORE to $AFTER
+test -d ${NOTESDIR}/$BEFORE 	&& 	log notebook_rename failed to remove  $BEFORE
+
+
+unit Testing notebook_rename cp 
+# copy back $AFTER to $BEFORE so we have both
+
+echo $BEFORE | notebook_rename cp  $AFTER
+
+test ! -d ${NOTESDIR}/$BEFORE 	&& 	log notebook_rename cp failed to copy $AFTER to $BEFORE
+
+unit Testing notebook_list
+notebook_list
+
+
+unit Testing notebook USE and DEFAULT
+
+PREVIOUSLY="`cmd_config | grep USE | sed s/^The\ USE\ notebook.*-\>\ // `"
+cmd_use testing
+
+# ave to use cmd_config to pick up testing environment
+USED="`cmd_config | grep USE | sed s/^The\ USE\ notebook.*-\>\ // `"
+test -d  ${NOTESDIR}/${USED} && echo  $USED exists
+test ! "$PREVIOUSLY" = "$USED" && echo Confirmed change from $PREVIOUSLY to $USED 
+test "$PREVIOUSLY" = "$USED" && log ERROR notebook use command failed to change from $PREVIOUSLY to $USED 
+
+echo Importing a note into $USED
+note_import  makefile
+test ! -f  ${NOTESDIR}/testing/makefile.asc && log  Failed to import a note into USE-d notebook
+
+echo Now switch back to DEFAULT
+cmd_use
+NOWUSED="`cmd_config | grep USE | sed s/^The\ USE\ notebook.*-\>\ // `"
+DEFAULTED="`cmd_config | grep DEFAULT | sed s/The\ DEFAULT\ notebook.*-\>\ // `"
+test "$DEFAULTED" = "$NOWUSED" 	&& echo Defaulted back to DEFAULT \(${DEFAULTED}\)
+test ! "$DEFAULTED" = "$NOWUSED" 	&& log ERROR: failed to default back to \(${DEFAULTED}\)
+
+
+unit Testing changing default notebook
+
+ORIG="`cmd_config | grep DEFAULT | sed s/The\ DEFAULT\ notebook.*-\>\ // `"
+cmd_default testing
+NOW="`cmd_config | grep DEFAULT | sed s/The\ DEFAULT\ notebook.*-\>\ // `"
+test  "$NOW" = "$ORIG"  && log ERROR: Failed to switch DEFAULT from $ORIG to $NOW
+
+cmd_default notes
+AGAIN="`cmd_config | grep DEFAULT | sed s/The\ DEFAULT\ notebook.*-\>\ // `"
+test  "$NOW" = "$AGAIN"  && log ERROR Failed to switch DEFAULT from $NOW to $AGAIN
+test ! "$NOW" = "$AGAIN"  &&  test !  "$ORIG" =  "$NOW"   && echo Able to switch DEFAULT between notebooks
+
+
+unit Testing notes\(1\) help
+
+notes help
+
+unit Testing notebook\(1\) help
+
+notebook help
+
+unit Testing notes versions
+
+fixversion
+
+echo If versions are not all equal you may use \"fixversion fix\" to automatically fixup all versions to current git tag
+pagebreak
+
+tree tests
+# Display error log if available
+test -f $ERRORLOG 	&&  more $ERRORLOG
+

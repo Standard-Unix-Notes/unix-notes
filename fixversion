@@ -1,0 +1,78 @@
+#!/bin/sh 
+TESTDIR="`pwd`/tests"
+ERRORLOG="${TESTDIR}/error_log_for_unit_tests"
+rm -f $ERRORLOG
+log () {
+	echo $@ >>  $ERRORLOG
+}
+FIXUP=0
+test "$1" = "fix" 	&& FIXUP=1
+
+display () {
+
+	cat << EOF
+
+	==== VERSIONS & DATES IN FILES ====
+
+	TODAY = $TODAY
+
+	SCRIPTS:
+	        notes		$NOTESVER
+		notebook	$NOTEBOOKVER
+		journal		$JOURNALVER
+
+	MAN PAGES:
+		notes(1)	$NOTESMAN		$NOTESMANDATE
+		notebook(1)	$NOTEBOOKMAN		$NOTEBOOKMANDATE
+		journal(1)	$JOURNALMAN		$JOURNALMANDATE
+
+	GIT TAGS:
+		git		$GITVER
+
+EOF
+
+}
+
+get_versions () {
+# get versions and dates
+	NOTESVER="`grep -m 1 VERSION notes | cut -d '=' -f 2 `"
+	NOTEBOOKVER="`grep -m 1 VERSION notebook | cut -d '=' -f 2 `"
+	JOURNALVER="`grep -m 1 VERSION journal | cut -d '=' -f 2 `"
+	GITVER="`make ver`"
+	NOTESMAN="`grep .TH docs/notes.1 | cut -d ' ' -f 7 | cut -d '\"' -f 2 `"
+	NOTESMANDATE="`grep .TH docs/notes.1 | cut -d ' ' -f 4-6 | cut -d '\"' -f 2 `"
+	NOTEBOOKMAN="`grep .TH docs/notebook.1 | cut -d ' ' -f 7 | cut -d '\"' -f 2 `"
+	NOTEBOOKMANDATE="`grep .TH docs/notebook.1 | cut -d ' ' -f 4-6 | cut -d '\"' -f 2 `"
+	JOURNALMAN="`grep .TH docs/journal.1 | cut -d ' ' -f 7 | cut -d '\"' -f 2 `"
+	JOURNALMANDATE="`grep .TH docs/journal.1 | cut -d ' ' -f 4-6 | cut -d '\"' -f 2 `"
+	TODAY="`date +\"%d %B %Y\"`"
+}
+
+get_versions
+
+if [ $FIXUP -eq 1 ] ; then
+	echo fixing up version and dates
+
+	sed -i "s/^VERSION=.*/VERSION=${GITVER}/" notes
+	# no need to edit notebook(1) as is link to notes
+	sed -i "s/^VERSION=.*/VERSION=${GITVER}/" journal
+	sed -i "/^.TH/s/\"${NOTESMAN}\"/\"${GITVER}\"/" docs/notes.1
+	sed -i "/^.TH/s/\"${NOTEBOOKMAN}\"/\"${GITVER}\"/" docs/notebook.1
+	sed -i "/^.TH/s/\"${JOURNALMAN}\"/\"${GITVER}\"/" docs/journal.1
+	# and the dates ...
+	sed -i "/^.TH/s/\"${NOTESMANDATE}\"/\"${TODAY}\"/" docs/notes.1
+	sed -i "/^.TH/s/\"${NOTEBOOKMANDATE}\"/\"${TODAY}\"/" docs/notebook.1
+	sed -i "/^.TH/s/\"${JOURNALMANDATE}\"/\"${TODAY}\"/" docs/journal.1
+else
+	# just log to errorlog 
+	test "$GITVER" != "$NOTESVER" 		&& log  GITVER not equal to NOTESVER
+	test "$GITVER" != "$NOTEBOOKVER" 	&& log  GITVER not equal to NOTEBOOKVER
+	test "$GITVER" != "$JOURNALVER" 	&& log  GITVER not equal to  JOURNALVER
+	test "$GITVER" != "$NOTESMAN" 		&& log  GITVER not equal to NOTESMAN
+	test "$GITVER" != "$NOTEBOOKMAN" 	&& log  GITVER not equal to NOTEBOOKMAN
+	test "$GITVER" != "$JOURNALMAN" 	&& log  GITVER not equal to JOURNALMAN
+fi
+
+get_versions
+
+display

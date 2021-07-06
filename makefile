@@ -17,10 +17,22 @@ help:
 	@echo ""
 	@sed -n s/^##//p makefile
 
+## make unit                     Run Unit Tests
+unit:
+	./unit-tests
+
+## make ver                      Show version  tag
+ver:
+	@echo $(VER)
+
+## make fix                      Create a fix versions and date in files c.f. git tag 
+fix:
+	@echo run \"fixversion fix\" to fix versions and dates to $(VER)
+
 ## make var                      Show makefile variables
 var:
-	@echo Operating System = $(OS)
 	@echo Latest Git tag {Version} = $(VER)
+	@echo Operating System = $(OS)
 	@echo Tarball Location = $(TARBALLLOC)
 	@echo Package Name = $(PKGNAME)
 	@echo Tarball Name = $(TARBALL)
@@ -50,9 +62,8 @@ manpages:
 
 clean: 
 	@echo clean up after build
-	-rm tmp/notes.1.gz
-	-rm tmp/notebook.1.gz
-	-rm tmp/journal.1.gz
+	-rm -rf tmp/*
+	-rm -rf tests/*
 
 ## make uninstall                Uninstall the application
 uninstall:

@@ -7,7 +7,7 @@
 # The idea came from 'pass' the standard Unix password manager
 
 # VARIABLES
-VERSION=2.1
+VERSION=2.5
 #NOTES_UMASK='077'
 # Handle $XDG_DATA_DIR -or- NOTESDIR being set in environment
 if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then
@@ -43,23 +43,17 @@ else
     SHREDCMD="rm"
 fi
 
-USEGIT=`grep git ${CONFIGFILE}| cut -d'=' -f 2`
+USEGIT="`grep git ${CONFIGFILE}| cut -d'=' -f 2`"
 
-SPELLCHECK=`grep spelling $CONFIGFILE | cut -d'=' -f 2`
-spellcheck () {
+spell_check () {
+    SPELLCHECK="`grep spelling ${CONFIGFILE} | cut -d '=' -f 2`"
     case ${SPELLCHECK} in 
         aspell) 
-            SPELLINGCMD="aspell -x -c " 
-            ${SPELLINGCMD} ${notefile}
+            aspell -x -c  ${notefile}
             ;;
         ispell) 
-            SPELLINGCMD="ispell -x " 
-            ${SPELLINGCMD} ${notefile}
+            ispell -x  ${notefile}
             ;;
-        none) 
-            ;;
-        *) 
-            echo Invalid config option `grep "spellcheck" ${CONFIGFILE}`
     esac
 }
 
@@ -93,10 +87,6 @@ cmd_init (){		# setup directories and GPG key  to be used
 
 	echo "Creating Journal directory ${JOURNALDIR} "
 	mkdir -p $JOURNALDIR
-
-    echo params $1
-    
-    
 }
 
 create_config () {
@@ -124,7 +114,7 @@ create_config () {
     echo Do you want spellchecking enabled?
     echo "1) Use aspell"
     echo "2) Use ispell"
-    echo "3) Do not spellcheck"
+    echo "3) Do not spell check"
     read -p "Choose 1,2,or 3: " choosespell
     case $choosespell in
         1)
@@ -209,7 +199,12 @@ note_add () {
     filen="$@"
     notefile="${USE_POINTER}/`echo ${filen} | tr ' ' '_'`"
 	
-	if [ -f "$notefile.asc" ] ; then
+    if [ "$filen" = "" ] ; then 
+        echo No notefile name given ... exiting
+        exit 1
+    fi
+
+	if [ -f "${notefile}.asc" ] ; then
 		echo File exists ... cannot create. Try 'notes edit' instead.
         exit 1
 	else
@@ -220,7 +215,7 @@ note_add () {
 		# create temporary note file
 		$EDITOR "$notefile"
 
-		spellcheck
+		spell_check
 
 		# encrypt note file
 		$GPG -ear $KEY $GPG_OPTS  "$notefile"
@@ -278,13 +273,13 @@ note_edit () {
 	if [ -f "$notefile" ]; then 
 		gpg -d -o "${decrypted}" "${notefile}" 
 		${EDITOR} "${decrypted}" 
-        spellcheck
+        spell_check
 		$GPG -ear $KEY $GPG_OPTS  "${decrypted}"
 		${SHREDCMD} ${decrypted}
 	elif [ -f "${notefile}.asc" ]; then 
 		gpg -d -o "${decrypted}"  "${notefile}.asc" 
 		${EDITOR} "${decrypted}" 
-        spellcheck
+        spell_check
 		$GPG -ear $KEY $GPG_OPTS  "${decrypted}"
 		${SHREDCMD} ${decrypted}
 	else 
@@ -390,15 +385,7 @@ notebook_delete () {
 		echo Error: Notebook \'$notebook\' does not exist
 		exit 1
 	else
-		echo Deleting files from $notebook
-		${SHREDCMD} ${notebook}/*.asc
-		
-		if [ $? = 0 ] ; then 
-			rmdir "$notebook"
-		else
-			echo Deleting files aborted ... aborting deleting notebook $notebook
-            exit 1
-		fi
+        rm -rf $notebook
 	fi
 
 	if [ "$USEGIT" = "y" ]; then
@@ -468,7 +455,7 @@ GPG encrypted notes system for BSD and Linux systems
 
 	notes init          initialise notes system
 	notes config        display config file
-	notes backup        backup $NOTESDIR to GPG encrypted tar file
+	notes backup        backup NOTESDIR to GPG encrypted tar file
 	notes newkey email  change GPG key 
 	notes help          show help
 	notes version       show version
@@ -638,7 +625,7 @@ cmd_default () {
 
     if [ "$nb" = "" ]  ;then
         echo Default notebook = "`readlink -f $DEFAULT_POINTER`"
-        exit 0
+        return 0
     fi
     if [ -d "$notebook" ] ; then
         unlink  "$DEFAULT_POINTER" 
@@ -664,7 +651,7 @@ cmd_use () {
         echo no notebook specified using default notebook
         unlink "$USE_POINTER"
         ln -s "`basename $defaultnbval`" "$USE_POINTER"
-        exit 0 
+        return 0 
     fi
     if [ -d "$notebook" ] ; then
         unlink  "$USE_POINTER" 
@@ -779,6 +766,5 @@ case "$1" in
         git) shift;                     cmd_git "$@" ;;
         *)                              cmd_extension_or_show "$@" ;;
 esac
-exit 0
 
 

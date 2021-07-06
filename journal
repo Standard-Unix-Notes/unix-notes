@@ -9,7 +9,7 @@
 # The idea came from 'pass' the standard Unix password manager
 
 # VARIABLES
-VERSION=2.1
+VERSION=2.5
 #NOTES_UMASK='077'
 # Handle $XDG_DATA_DIR -or- NOTESDIR being set in environment
 if [ -n "$XDG_DATA_DIR"  -a  -z "$NOTESDIR" ] ; then
