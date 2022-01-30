@@ -47,12 +47,13 @@ install_files:
 	sudo install -o root -m 755  notes /usr/local/bin/notes 
 	sudo ln -sf /usr/local/bin/notes /usr/local/bin/notebook
 	sudo install -o root -m 755 journal /usr/local/bin/journal
-	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/notes
-	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/notebook
-	sudo install -o root -m 644 bash-completions /usr/share/bash-completion/completions/journal
+	sudo install -o root -m 644 bash/notes /usr/share/bash-completion/completions/notes
+	sudo install -o root -m 644 bash/notebook /usr/share/bash-completion/completions/notebook
+	sudo install -o root -m 644 bash/journal /usr/share/bash-completion/completions/journal
 
 manpages:
 	@echo create the docs files to be installed
+	mkdir ./tmp
 	gzip -c docs/notes.1  > tmp/notes.1.gz
 	gzip -c docs/notebook.1  > tmp/notebook.1.gz
 	gzip -c docs/journal.1 > tmp/journal.1.gz
